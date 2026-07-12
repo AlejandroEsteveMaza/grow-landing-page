@@ -1,0 +1,77 @@
+---
+import { heroStats, marqueeItems } from '../../data/home';
+---
+
+<section
+  class="relative flex min-h-screen scroll-mt-24 flex-col justify-center overflow-hidden px-6 pb-24 pt-36 md:px-10 md:pb-28 md:pt-44 lg:px-16"
+  id="inicio"
+  aria-labelledby="hero-title"
+>
+  <div class="hero-glow" aria-hidden="true"></div>
+  <div class="relative z-10 mx-auto w-full max-w-site">
+    <p class="hero-enter hero-enter-1 flex items-center gap-3 text-[0.68rem] font-semibold uppercase tracking-[0.25em] text-primary">
+      <span class="h-px w-9 bg-primary" aria-hidden="true"></span>
+      Agencia de diseño web especializada
+    </p>
+    <h1
+      class="mt-7 max-w-5xl font-display text-[clamp(3.35rem,8vw,7.5rem)] font-black leading-[0.91] tracking-[-0.055em] text-foreground"
+      id="hero-title"
+    >
+      <span class="hero-line"><span>Tu web no es</span></span>
+      <span class="hero-line"><span>decoración.</span></span>
+      <span class="hero-line"><span>Es tu <em class="text-primary">motor de ventas.</em></span></span>
+    </h1>
+    <p class="hero-enter hero-enter-2 mt-8 max-w-xl text-base leading-7 text-muted sm:text-lg sm:leading-8">
+      Diseñamos webs a medida para profesionales que quieren una presencia digital que los represente,
+      aparezca en Google y transmita confianza desde el primer clic.
+    </p>
+    <div class="hero-enter hero-enter-3 mt-10 flex flex-wrap gap-3 sm:mt-12">
+      <a
+        class="inline-flex min-h-12 items-center justify-center rounded-brand bg-primary px-7 py-3.5 text-sm font-bold text-white transition-[background-color,transform] hover:-translate-y-0.5 hover:bg-primary-hover focus-visible:-translate-y-0.5 focus-visible:bg-primary-hover"
+        href="#contacto"
+      >
+        Solicitar presupuesto
+      </a>
+      <a
+        class="inline-flex min-h-12 items-center justify-center rounded-brand border border-border px-7 py-3.5 text-sm font-semibold text-foreground transition-[border-color,color,transform] hover:-translate-y-0.5 hover:border-primary hover:text-primary focus-visible:-translate-y-0.5 focus-visible:border-primary focus-visible:text-primary"
+        href="#servicios"
+      >
+        Ver servicios
+      </a>
+    </div>
+
+    <dl class="hero-enter hero-enter-4 mt-16 grid max-w-3xl grid-cols-1 gap-6 border-t border-border pt-8 sm:grid-cols-3 lg:mt-24">
+      {
+        heroStats.map((stat) => (
+          <div class="flex flex-col">
+            <dt class="text-xs leading-5 text-muted">{stat.label}</dt>
+            <dd class="-order-1 mb-1 font-display text-4xl font-black tracking-tight text-foreground">{stat.value}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+</section>
+
+<div class="overflow-hidden border-y border-border bg-surface-strong py-4" aria-label="Áreas de especialización">
+  <div class="marquee-track flex w-max items-center motion-reduce:animate-none">
+    <div class="flex items-center" role="list">
+      {
+        marqueeItems.map((item) => (
+          <span class="flex items-center font-display text-sm font-bold uppercase tracking-[0.17em] text-muted" role="listitem">
+            <span class="px-8">{item}</span><span class="text-primary" aria-hidden="true">✦</span>
+          </span>
+        ))
+      }
+    </div>
+    <div class="flex items-center" aria-hidden="true">
+      {
+        marqueeItems.map((item) => (
+          <span class="flex items-center font-display text-sm font-bold uppercase tracking-[0.17em] text-muted">
+            <span class="px-8">{item}</span><span class="text-primary">✦</span>
+          </span>
+        ))
+      }
+    </div>
+  </div>
+</div>

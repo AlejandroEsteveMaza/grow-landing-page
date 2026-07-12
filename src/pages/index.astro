@@ -1,0 +1,59 @@
+---
+import ContactSection from '../components/sections/ContactSection.astro';
+import FaqSection from '../components/sections/FaqSection.astro';
+import HeroSection from '../components/sections/HeroSection.astro';
+import PricingSection from '../components/sections/PricingSection.astro';
+import ProcessSection from '../components/sections/ProcessSection.astro';
+import ResourcesSection from '../components/sections/ResourcesSection.astro';
+import ServicesSection from '../components/sections/ServicesSection.astro';
+import TeamSection from '../components/sections/TeamSection.astro';
+import { siteConfig } from '../config/site';
+import { faqItems } from '../data/faq';
+import { processSteps } from '../data/home';
+import { maintenancePlan, pricingPlans } from '../data/pricing';
+import { articles, guides } from '../data/resources';
+import { services } from '../data/services';
+import { teamMembers } from '../data/team';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import type { JsonLd, SeoMeta } from '../types/content';
+
+const seo = {
+  title: 'GROW · Webs a medida que convierten',
+  description: siteConfig.description,
+  type: 'website',
+} satisfies SeoMeta;
+
+const professionalServiceSchema: JsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfessionalService',
+  name: siteConfig.name,
+  description: siteConfig.description,
+};
+
+const faqSchema: JsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqItems.map((item) => ({
+    '@type': 'Question',
+    name: item.question,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: item.answer,
+    },
+  })),
+};
+---
+
+<BaseLayout {...seo} schemas={[professionalServiceSchema, faqSchema]}>
+  <HeroSection />
+  <ServicesSection services={services} />
+  <ProcessSection steps={processSteps} />
+  <TeamSection members={teamMembers} />
+  <PricingSection plans={pricingPlans} maintenance={maintenancePlan} />
+  <ResourcesSection articles={articles} guides={guides} />
+  <FaqSection items={faqItems} />
+  <ContactSection
+    whatsappNumber={siteConfig.whatsappNumber}
+    whatsappMessage={siteConfig.whatsappMessage}
+  />
+</BaseLayout>

@@ -1,0 +1,110 @@
+---
+import WhatsAppButton from '../global/WhatsAppButton.astro';
+import { contactServiceOptions } from '../../data/home';
+
+interface Props {
+  whatsappNumber: string | null;
+  whatsappMessage: string;
+}
+
+const { whatsappNumber, whatsappMessage } = Astro.props;
+---
+
+<section class="scroll-mt-20" id="contacto" aria-labelledby="contact-title">
+  <div class="mx-auto grid w-full max-w-site gap-14 px-6 py-20 md:px-10 md:py-28 lg:grid-cols-2 lg:gap-20 lg:px-16 lg:py-32">
+    <div>
+      <p class="reveal flex items-center gap-3 text-[0.68rem] font-semibold uppercase tracking-[0.25em] text-primary">
+        <span class="h-px w-6 bg-primary" aria-hidden="true"></span>Contacto
+      </p>
+      <h2 class="reveal mt-4 font-display text-[clamp(2.5rem,5vw,4.25rem)] font-black leading-[0.96] tracking-[-0.045em] text-foreground" id="contact-title">
+        Hablemos de<br /><span class="text-muted">tu proyecto</span>
+      </h2>
+      <p class="reveal mt-7 max-w-xl text-base leading-7 text-muted">
+        Cuéntanos qué necesitas y te responderemos con un presupuesto personalizado. Sin rodeos y sin compromiso.
+      </p>
+      <div class="reveal mt-9">
+        <WhatsAppButton number={whatsappNumber} message={whatsappMessage} />
+      </div>
+    </div>
+
+    <form class="reveal grid gap-5" data-contact-form aria-describedby="form-notice">
+      <div class="grid gap-5 sm:grid-cols-2">
+        <div class="grid gap-2">
+          <label class="text-xs font-semibold uppercase tracking-[0.12em] text-muted" for="name">Nombre</label>
+          <input
+            class="min-h-12 rounded-brand border border-border bg-surface px-4 py-3 text-sm text-foreground transition-colors placeholder:text-muted/70 hover:border-muted focus:border-primary"
+            id="name"
+            name="name"
+            type="text"
+            autocomplete="name"
+            minlength="2"
+            required
+            placeholder="Tu nombre"
+          />
+        </div>
+        <div class="grid gap-2">
+          <label class="text-xs font-semibold uppercase tracking-[0.12em] text-muted" for="email">Email</label>
+          <input
+            class="min-h-12 rounded-brand border border-border bg-surface px-4 py-3 text-sm text-foreground transition-colors placeholder:text-muted/70 hover:border-muted focus:border-primary"
+            id="email"
+            name="email"
+            type="email"
+            autocomplete="email"
+            required
+            placeholder="tu@email.com"
+          />
+        </div>
+      </div>
+
+      <div class="grid gap-2">
+        <label class="text-xs font-semibold uppercase tracking-[0.12em] text-muted" for="service">¿Qué necesitas?</label>
+        <select
+          class="min-h-12 rounded-brand border border-border bg-surface px-4 py-3 text-sm text-foreground transition-colors hover:border-muted focus:border-primary"
+          id="service"
+          name="service"
+          required
+        >
+          <option value="" disabled selected>Selecciona un servicio</option>
+          {contactServiceOptions.map((option) => <option value={option}>{option}</option>)}
+        </select>
+      </div>
+
+      <div class="grid gap-2">
+        <label class="text-xs font-semibold uppercase tracking-[0.12em] text-muted" for="message">Cuéntanos tu proyecto</label>
+        <textarea
+          class="min-h-32 resize-y rounded-brand border border-border bg-surface px-4 py-3 text-sm leading-6 text-foreground transition-colors placeholder:text-muted/70 hover:border-muted focus:border-primary"
+          id="message"
+          name="message"
+          minlength="20"
+          required
+          placeholder="¿A qué te dedicas? ¿Qué quieres conseguir con tu web?"
+        ></textarea>
+      </div>
+
+      <button
+        class="min-h-12 rounded-brand bg-primary px-6 py-3 text-sm font-bold text-white transition-[background-color,transform] hover:-translate-y-0.5 hover:bg-primary-hover focus-visible:-translate-y-0.5 focus-visible:bg-primary-hover"
+        type="button"
+        data-form-button
+      >
+        Revisar solicitud
+      </button>
+      <p class="text-sm leading-6 text-muted" id="form-notice" tabindex="-1" data-form-notice>
+        El formulario todavía no envía ni almacena datos. El procesamiento real se conectará en una fase posterior.
+      </p>
+    </form>
+  </div>
+</section>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
+  const formButton = form?.querySelector<HTMLButtonElement>('[data-form-button]');
+  const formNotice = form?.querySelector<HTMLElement>('[data-form-notice]');
+
+  formButton?.addEventListener('click', () => {
+    if (!form || !formNotice || !form.reportValidity()) return;
+
+    formNotice.textContent =
+      'Los campos son válidos, pero el envío aún no está habilitado. No se ha enviado ni almacenado ningún dato.';
+    formNotice.focus();
+  });
+</script>

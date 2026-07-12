@@ -1,0 +1,123 @@
+---
+import { navigation } from '../../config/site';
+---
+
+<header
+  class="site-header fixed inset-x-0 top-0 z-50 border-b border-transparent transition-[background-color,border-color,padding] duration-300"
+  data-header
+>
+  <nav
+    class="mx-auto flex w-full max-w-site flex-wrap items-center justify-between gap-x-6 px-6 py-5 md:flex-nowrap md:px-10 lg:px-16"
+    aria-label="Navegación principal"
+  >
+    <a
+      class="inline-flex min-h-11 items-center font-display text-2xl font-black tracking-[-0.06em] text-foreground transition-colors hover:text-primary focus-visible:text-primary"
+      href="#inicio"
+      aria-label="GROW, volver al inicio"
+    >
+      GROW<span class="text-primary">.</span>
+    </a>
+
+    <button
+      class="min-h-11 min-w-11 items-center justify-center rounded-brand border border-border bg-surface text-foreground transition-colors hover:border-primary focus-visible:border-primary"
+      type="button"
+      aria-controls="primary-navigation"
+      aria-expanded="false"
+      aria-label="Abrir menú"
+      data-menu-button
+    >
+      <span class="sr-only">Abrir menú</span>
+      <span class="flex w-5 flex-col gap-1.5" aria-hidden="true">
+        <span class="h-px w-full bg-current"></span>
+        <span class="h-px w-full bg-current"></span>
+        <span class="h-px w-full bg-current"></span>
+      </span>
+    </button>
+
+    <div
+      class="mt-5 w-full border-t border-border pt-5 md:mt-0 md:w-auto md:border-0 md:pt-0"
+      id="primary-navigation"
+      data-nav-menu
+    >
+      <ul class="flex flex-col gap-1 md:flex-row md:items-center md:gap-1">
+        {
+          navigation.map((item) => (
+            <li>
+              <a
+                class="block min-h-11 rounded-brand px-4 py-3 text-sm font-medium text-subtle transition-colors hover:bg-surface hover:text-foreground focus-visible:bg-surface focus-visible:text-foreground md:py-2.5"
+                href={item.href}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+        <li class="mt-2 md:mt-0 md:ml-2">
+          <a
+            class="inline-flex min-h-11 w-full items-center justify-center rounded-brand bg-primary px-5 py-2.5 text-sm font-bold text-white transition-[background-color,transform] hover:-translate-y-0.5 hover:bg-primary-hover focus-visible:-translate-y-0.5 focus-visible:bg-primary-hover md:w-auto"
+            href="#contacto"
+          >
+            Solicitar presupuesto
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+</header>
+
+<script>
+  document.documentElement.classList.add('js');
+
+  const header = document.querySelector<HTMLElement>('[data-header]');
+  const menuButton = document.querySelector<HTMLButtonElement>('[data-menu-button]');
+  const menu = document.querySelector<HTMLElement>('[data-nav-menu]');
+  const desktopMedia = window.matchMedia('(min-width: 768px)');
+
+  const setMenuState = (isOpen: boolean): void => {
+    if (!menuButton || !menu) return;
+
+    menu.hidden = !isOpen;
+    menuButton.setAttribute('aria-expanded', String(isOpen));
+    menuButton.setAttribute('aria-label', isOpen ? 'Cerrar menú' : 'Abrir menú');
+  };
+
+  const syncMenuToViewport = (): void => {
+    if (!menuButton || !menu) return;
+
+    menuButton.hidden = desktopMedia.matches;
+    setMenuState(desktopMedia.matches);
+  };
+
+  if (menuButton && menu) {
+    syncMenuToViewport();
+
+    menuButton.addEventListener('click', () => {
+      const isOpen = menuButton.getAttribute('aria-expanded') === 'true';
+      setMenuState(!isOpen);
+    });
+
+    menu.querySelectorAll<HTMLAnchorElement>('a').forEach((link) => {
+      link.addEventListener('click', () => {
+        if (!desktopMedia.matches) setMenuState(false);
+      });
+    });
+
+    desktopMedia.addEventListener('change', syncMenuToViewport);
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && menuButton.getAttribute('aria-expanded') === 'true') {
+        setMenuState(false);
+        menuButton.focus();
+      }
+    });
+  }
+
+  if (header) {
+    const updateHeader = (): void => {
+      header.dataset.scrolled = String(window.scrollY > 24);
+    };
+
+    updateHeader();
+    window.addEventListener('scroll', updateHeader, { passive: true });
+  }
+</script>

@@ -1,0 +1,35 @@
+---
+interface Props {
+  number: string | null;
+  message: string;
+}
+
+const { number, message } = Astro.props;
+const isConfigured = number !== null && /^\d{8,15}$/.test(number);
+const href = isConfigured ? `https://wa.me/${number}?text=${encodeURIComponent(message)}` : null;
+---
+
+{
+  href ? (
+    <a
+      class="inline-flex min-h-12 items-center gap-3 rounded-brand bg-whatsapp px-6 py-3 text-sm font-bold text-white transition-[background-color,transform] hover:-translate-y-0.5 hover:bg-whatsapp-hover focus-visible:-translate-y-0.5 focus-visible:bg-whatsapp-hover"
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <span class="grid size-6 place-items-center rounded-full border border-white/50 text-xs" aria-hidden="true">
+        WA
+      </span>
+      Escribir por WhatsApp
+    </a>
+  ) : (
+    <span
+      class="inline-flex min-h-12 cursor-not-allowed items-center gap-3 rounded-brand border border-border bg-surface px-6 py-3 text-sm font-semibold text-muted"
+      aria-disabled="true"
+      title="Añade el número en src/config/site.ts para activar este enlace"
+    >
+      <span class="grid size-6 place-items-center rounded-full border border-current text-xs" aria-hidden="true">WA</span>
+      WhatsApp pendiente de configurar
+    </span>
+  )
+}

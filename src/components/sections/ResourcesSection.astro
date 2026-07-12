@@ -1,0 +1,125 @@
+---
+import ResourceCard from '../cards/ResourceCard.astro';
+import type { ArticlePreview, GuidePreview } from '../../types/content';
+
+interface Props {
+  articles: readonly ArticlePreview[];
+  guides: readonly GuidePreview[];
+}
+
+const { articles, guides } = Astro.props;
+---
+
+<section class="scroll-mt-20 border-b border-border" id="recursos" aria-labelledby="resources-title" data-tabs>
+  <div class="mx-auto w-full max-w-site px-6 py-20 md:px-10 md:py-28 lg:px-16 lg:py-32">
+    <p class="reveal flex items-center gap-3 text-[0.68rem] font-semibold uppercase tracking-[0.25em] text-primary">
+      <span class="h-px w-6 bg-primary" aria-hidden="true"></span>Recursos gratuitos
+    </p>
+    <h2 class="reveal mt-4 font-display text-[clamp(2.5rem,5vw,4.25rem)] font-black leading-[0.96] tracking-[-0.045em] text-foreground" id="resources-title">
+      Blog y guías<br /><span class="text-muted">para crecer online</span>
+    </h2>
+
+    <div class="mt-12 border-b border-border" role="tablist" aria-label="Tipos de recursos" data-tablist>
+      <button
+        class="min-h-12 border-b-2 border-primary px-5 py-3 text-sm font-semibold text-primary transition-colors hover:text-foreground focus-visible:text-foreground"
+        id="tab-blog"
+        type="button"
+        role="tab"
+        aria-selected="true"
+        aria-controls="panel-blog"
+        data-tab="blog"
+      >
+        Blog
+      </button>
+      <button
+        class="min-h-12 border-b-2 border-transparent px-5 py-3 text-sm font-semibold text-muted transition-colors hover:text-foreground focus-visible:text-foreground"
+        id="tab-guides"
+        type="button"
+        role="tab"
+        aria-selected="false"
+        aria-controls="panel-guides"
+        tabindex="-1"
+        data-tab="guides"
+      >
+        Guías gratuitas
+      </button>
+    </div>
+
+    <div class="resource-panel mt-10" id="panel-blog" role="tabpanel" aria-labelledby="tab-blog" tabindex="0" data-panel="blog">
+      <h3 class="mb-6 font-display text-2xl font-bold text-foreground no-js-resource-title">Artículos</h3>
+      <div class="grid gap-5 lg:grid-cols-3">
+        {
+          articles.map((article) => (
+            <ResourceCard
+              eyebrow={article.category}
+              title={article.title}
+              description={article.excerpt}
+              meta={`${article.readingTime} · Próximamente`}
+            />
+          ))
+        }
+      </div>
+    </div>
+
+    <div class="resource-panel mt-12" id="panel-guides" role="tabpanel" aria-labelledby="tab-guides" tabindex="0" data-panel="guides">
+      <h3 class="mb-6 font-display text-2xl font-bold text-foreground no-js-resource-title">Guías gratuitas</h3>
+      <div class="grid gap-5 md:grid-cols-2">
+        {
+          guides.map((guide) => (
+            <ResourceCard
+              eyebrow="Guía gratuita"
+              title={guide.title}
+              description={guide.description}
+              symbol={guide.symbol}
+            />
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.documentElement.classList.add('js');
+
+  document.querySelectorAll<HTMLElement>('[data-tabs]').forEach((tabGroup) => {
+    const tabs = Array.from(tabGroup.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
+    const panels = Array.from(tabGroup.querySelectorAll<HTMLElement>('[role="tabpanel"]'));
+
+    const selectTab = (selectedIndex: number, moveFocus: boolean): void => {
+      tabs.forEach((tab, index) => {
+        const isSelected = index === selectedIndex;
+        tab.setAttribute('aria-selected', String(isSelected));
+        tab.tabIndex = isSelected ? 0 : -1;
+        tab.classList.toggle('border-primary', isSelected);
+        tab.classList.toggle('text-primary', isSelected);
+        tab.classList.toggle('border-transparent', !isSelected);
+        tab.classList.toggle('text-muted', !isSelected);
+      });
+
+      panels.forEach((panel, index) => {
+        panel.hidden = index !== selectedIndex;
+      });
+
+      if (moveFocus) tabs[selectedIndex]?.focus();
+    };
+
+    tabs.forEach((tab, index) => {
+      tab.addEventListener('click', () => selectTab(index, false));
+      tab.addEventListener('keydown', (event) => {
+        let nextIndex = index;
+
+        if (event.key === 'ArrowRight') nextIndex = (index + 1) % tabs.length;
+        else if (event.key === 'ArrowLeft') nextIndex = (index - 1 + tabs.length) % tabs.length;
+        else if (event.key === 'Home') nextIndex = 0;
+        else if (event.key === 'End') nextIndex = tabs.length - 1;
+        else return;
+
+        event.preventDefault();
+        selectTab(nextIndex, true);
+      });
+    });
+
+    selectTab(0, false);
+  });
+</script>

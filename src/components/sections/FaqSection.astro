@@ -1,0 +1,35 @@
+---
+import type { FaqItem } from '../../types/content';
+
+interface Props {
+  items: readonly FaqItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<section class="scroll-mt-20 border-b border-border bg-surface-strong" id="faq" aria-labelledby="faq-title">
+  <div class="mx-auto w-full max-w-site px-6 py-20 md:px-10 md:py-28 lg:px-16 lg:py-32">
+    <p class="reveal flex items-center gap-3 text-[0.68rem] font-semibold uppercase tracking-[0.25em] text-primary">
+      <span class="h-px w-6 bg-primary" aria-hidden="true"></span>Preguntas frecuentes
+    </p>
+    <h2 class="reveal mt-4 font-display text-[clamp(2.5rem,5vw,4.25rem)] font-black leading-[0.96] tracking-[-0.045em] text-foreground" id="faq-title">
+      Lo que siempre<br /><span class="text-muted">nos preguntan</span>
+    </h2>
+    <div class="reveal mt-12 max-w-3xl md:mt-16">
+      {
+        items.map((item) => (
+          <details class="faq-item group border-b border-border">
+            <summary class="flex min-h-16 cursor-pointer list-none items-center justify-between gap-5 py-5 text-base font-semibold text-foreground transition-colors hover:text-primary focus-visible:text-primary sm:text-lg">
+              <span>{item.question}</span>
+              <span class="grid size-9 shrink-0 place-items-center rounded-full border border-border text-xl font-light text-primary transition-[border-color,transform] group-open:rotate-45 group-open:border-primary" aria-hidden="true">
+                +
+              </span>
+            </summary>
+            <p class="max-w-2xl pb-7 pr-12 text-[0.95rem] leading-7 text-muted">{item.answer}</p>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+</section>
