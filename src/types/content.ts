@@ -10,6 +10,12 @@ export interface HeroStat {
   label: string;
 }
 
+export interface SectionCopy {
+  eyebrow: string;
+  title: string;
+  mutedTitle: string;
+}
+
 export interface Service {
   number: string;
   tier: string;
@@ -29,7 +35,7 @@ export interface TeamMember {
   role: string;
   bio: string;
   tags: readonly string[];
-  image: ImageMetadata;
+  image: ImageMetadata | string;
   imageAlt: string;
 }
 
@@ -57,12 +63,14 @@ export interface ArticlePreview {
   title: string;
   excerpt: string;
   readingTime: string;
+  href?: string;
 }
 
 export interface GuidePreview {
   symbol: string;
   title: string;
   description: string;
+  href?: string;
 }
 
 export interface FaqItem {

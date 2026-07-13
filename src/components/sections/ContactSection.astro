@@ -1,13 +1,13 @@
 ---
 import WhatsAppButton from '../global/WhatsAppButton.astro';
-import { contactServiceOptions } from '../../data/home';
-
 interface Props {
   whatsappNumber: string | null;
   whatsappMessage: string;
+  serviceOptions: readonly string[];
+  description: string;
 }
 
-const { whatsappNumber, whatsappMessage } = Astro.props;
+const { whatsappNumber, whatsappMessage, serviceOptions, description } = Astro.props;
 ---
 
 <section class="scroll-mt-20" id="contacto" aria-labelledby="contact-title">
@@ -20,7 +20,7 @@ const { whatsappNumber, whatsappMessage } = Astro.props;
         Hablemos de<br /><span class="text-muted">tu proyecto</span>
       </h2>
       <p class="reveal mt-7 max-w-xl text-base leading-7 text-muted">
-        Cuéntanos qué necesitas y te responderemos con un presupuesto personalizado. Sin rodeos y sin compromiso.
+        {description}
       </p>
       <div class="reveal mt-9">
         <WhatsAppButton number={whatsappNumber} message={whatsappMessage} />
@@ -65,7 +65,7 @@ const { whatsappNumber, whatsappMessage } = Astro.props;
           required
         >
           <option value="" disabled selected>Selecciona un servicio</option>
-          {contactServiceOptions.map((option) => <option value={option}>{option}</option>)}
+          {serviceOptions.map((option) => <option value={option}>{option}</option>)}
         </select>
       </div>
 

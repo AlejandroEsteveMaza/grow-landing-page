@@ -8,12 +8,7 @@ import ResourcesSection from '../components/sections/ResourcesSection.astro';
 import ServicesSection from '../components/sections/ServicesSection.astro';
 import TeamSection from '../components/sections/TeamSection.astro';
 import { siteConfig } from '../config/site';
-import { faqItems } from '../data/faq';
-import { processSteps } from '../data/home';
-import { maintenancePlan, pricingPlans } from '../data/pricing';
-import { articles, guides } from '../data/resources';
-import { services } from '../data/services';
-import { teamMembers } from '../data/team';
+import { getLandingContent } from '../lib/content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import type { JsonLd, SeoMeta } from '../types/content';
 
@@ -22,6 +17,8 @@ const seo = {
   description: siteConfig.description,
   type: 'website',
 } satisfies SeoMeta;
+
+const content = await getLandingContent();
 
 const professionalServiceSchema: JsonLd = {
   '@context': 'https://schema.org',
@@ -33,7 +30,7 @@ const professionalServiceSchema: JsonLd = {
 const faqSchema: JsonLd = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
-  mainEntity: faqItems.map((item) => ({
+  mainEntity: content.faqItems.map((item) => ({
     '@type': 'Question',
     name: item.question,
     acceptedAnswer: {
@@ -45,15 +42,17 @@ const faqSchema: JsonLd = {
 ---
 
 <BaseLayout {...seo} schemas={[professionalServiceSchema, faqSchema]}>
-  <HeroSection />
-  <ServicesSection services={services} />
-  <ProcessSection steps={processSteps} />
-  <TeamSection members={teamMembers} />
-  <PricingSection plans={pricingPlans} maintenance={maintenancePlan} />
-  <ResourcesSection articles={articles} guides={guides} />
-  <FaqSection items={faqItems} />
+  <HeroSection {...content.hero} />
+  <ServicesSection services={content.services} copy={content.sectionCopy.services} />
+  <ProcessSection steps={content.processSteps} copy={content.sectionCopy.process} />
+  <TeamSection members={content.teamMembers} copy={content.sectionCopy.team} />
+  <PricingSection plans={content.pricingPlans} maintenance={content.maintenancePlan} copy={content.sectionCopy.pricing} />
+  <ResourcesSection articles={content.articles} guides={content.guides} copy={content.sectionCopy.resources} />
+  <FaqSection items={content.faqItems} copy={content.sectionCopy.faq} />
   <ContactSection
     whatsappNumber={siteConfig.whatsappNumber}
-    whatsappMessage={siteConfig.whatsappMessage}
+    whatsappMessage={content.contact.whatsappMessage}
+    serviceOptions={content.contactServiceOptions}
+    description={content.contact.description}
   />
 </BaseLayout>

@@ -1,5 +1,16 @@
 ---
-import { heroStats, marqueeItems } from '../../data/home';
+import type { HeroStat } from '../../types/content';
+
+interface Props {
+  eyebrow: string;
+  titleLines: readonly string[];
+  emphasizedLine: string;
+  description: string;
+  stats: readonly HeroStat[];
+  marqueeItems: readonly string[];
+}
+
+const { eyebrow, titleLines, emphasizedLine, description, stats, marqueeItems } = Astro.props;
 ---
 
 <section
@@ -11,19 +22,16 @@ import { heroStats, marqueeItems } from '../../data/home';
   <div class="relative z-10 mx-auto w-full max-w-site">
     <p class="hero-enter hero-enter-1 flex items-center gap-3 text-[0.68rem] font-semibold uppercase tracking-[0.25em] text-primary">
       <span class="h-px w-9 bg-primary" aria-hidden="true"></span>
-      Agencia de diseño web especializada
+      {eyebrow}
     </p>
     <h1
       class="mt-7 max-w-5xl font-display text-[clamp(3.35rem,8vw,7.5rem)] font-black leading-[0.91] tracking-[-0.055em] text-foreground"
       id="hero-title"
     >
-      <span class="hero-line"><span>Tu web no es</span></span>
-      <span class="hero-line"><span>decoración.</span></span>
-      <span class="hero-line"><span>Es tu <em class="text-primary">motor de ventas.</em></span></span>
+      {titleLines.map((line, index) => <span class="hero-line"><span>{line}{index === titleLines.length - 1 && <> <em class="text-primary">{emphasizedLine}</em></>}</span></span>)}
     </h1>
     <p class="hero-enter hero-enter-2 mt-8 max-w-xl text-base leading-7 text-muted sm:text-lg sm:leading-8">
-      Diseñamos webs a medida para profesionales que quieren una presencia digital que los represente,
-      aparezca en Google y transmita confianza desde el primer clic.
+      {description}
     </p>
     <div class="hero-enter hero-enter-3 mt-10 flex flex-wrap gap-3 sm:mt-12">
       <a
@@ -42,7 +50,7 @@ import { heroStats, marqueeItems } from '../../data/home';
 
     <dl class="hero-enter hero-enter-4 mt-16 grid max-w-3xl grid-cols-1 gap-6 border-t border-border pt-8 sm:grid-cols-3 lg:mt-24">
       {
-        heroStats.map((stat) => (
+        stats.map((stat) => (
           <div class="flex flex-col">
             <dt class="text-xs leading-5 text-muted">{stat.label}</dt>
             <dd class="-order-1 mb-1 font-display text-4xl font-black tracking-tight text-foreground">{stat.value}</dd>
