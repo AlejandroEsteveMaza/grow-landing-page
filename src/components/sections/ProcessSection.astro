@@ -9,9 +9,9 @@ interface Props {
 const { steps, copy } = Astro.props;
 ---
 
-<section class="scroll-mt-20 border-b border-border" id="proceso" aria-labelledby="process-title">
+<section class="border-b border-border" aria-labelledby="process-title">
   <div class="mx-auto w-full max-w-site px-6 py-20 md:px-10 md:py-28 lg:px-16 lg:py-32">
-    <p class="reveal flex items-center gap-3 text-[0.68rem] font-semibold uppercase tracking-[0.25em] text-primary">
+    <p class="reveal flex items-center gap-3 text-[0.68rem] font-semibold uppercase tracking-[0.25em] text-primary" id="proceso">
       <span class="h-px w-6 bg-primary" aria-hidden="true"></span>{copy.eyebrow}
     </p>
     <h2 class="reveal mt-4 font-display text-[clamp(2.5rem,5vw,4.25rem)] font-black leading-[0.96] tracking-[-0.045em] text-foreground" id="process-title">
@@ -20,7 +20,7 @@ const { steps, copy } = Astro.props;
     <ol class="process-grid mt-14 grid border-l border-t border-border sm:grid-cols-2 lg:mt-16 lg:grid-cols-4">
       {
         steps.map((step) => (
-          <li class="reveal group relative overflow-hidden border-b border-r border-border p-7 transition-colors hover:bg-surface sm:p-9">
+          <li class="reveal reveal-interactive group relative overflow-hidden border-b border-r border-border p-7 transition-colors hover:bg-surface sm:p-9">
             <span class="absolute inset-0 bg-primary/5 opacity-0 transition-opacity group-hover:opacity-100" aria-hidden="true"></span>
             <p class="relative font-display text-5xl font-black leading-none text-border transition-colors group-hover:text-primary" aria-hidden="true">
               {step.number}

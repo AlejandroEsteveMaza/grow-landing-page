@@ -113,11 +113,17 @@ import { navigation } from '../../config/site';
   }
 
   if (header) {
+    const updateHeaderOffset = (): void => {
+      document.documentElement.style.setProperty('--header-offset', `${header.offsetHeight}px`);
+    };
+
     const updateHeader = (): void => {
       header.dataset.scrolled = String(window.scrollY > 24);
     };
 
+    updateHeaderOffset();
     updateHeader();
     window.addEventListener('scroll', updateHeader, { passive: true });
+    new ResizeObserver(updateHeaderOffset).observe(header);
   }
 </script>

@@ -9,7 +9,7 @@ const { service } = Astro.props;
 ---
 
 <article
-  class="reveal group relative overflow-hidden bg-surface p-7 transition-colors duration-500 hover:bg-surface-hover focus-within:bg-surface-hover sm:p-10 lg:p-14"
+  class="reveal reveal-interactive group relative overflow-hidden bg-surface p-7 transition-colors duration-500 hover:bg-surface-hover focus-within:bg-surface-hover sm:p-10 lg:p-14"
 >
   <span
     class="absolute inset-x-0 top-0 h-0.5 origin-left scale-x-0 bg-gradient-to-r from-primary to-transparent transition-transform duration-500 group-hover:scale-x-100 group-focus-within:scale-x-100"
@@ -32,9 +32,9 @@ const { service } = Astro.props;
     }
   </ul>
   <a
-    class="mt-8 inline-flex min-h-11 items-center gap-2 text-sm font-bold text-foreground transition-[color,gap] hover:gap-4 hover:text-primary focus-visible:gap-4 focus-visible:text-primary"
+    class="group/link mt-8 inline-flex min-h-11 items-center gap-2 text-sm font-bold text-foreground transition-colors hover:text-primary focus-visible:text-primary"
     href="#precios"
   >
-    Ver detalles y precio <span aria-hidden="true">→</span>
+    Ver detalles y precio <span class="inline-block transition-transform duration-300 ease-out group-hover/link:translate-x-1 group-focus-visible/link:translate-x-1 motion-reduce:transition-none" aria-hidden="true">→</span>
   </a>
 </article>

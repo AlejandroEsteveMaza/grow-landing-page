@@ -10,7 +10,7 @@ const { plan } = Astro.props;
 
 <article
   class:list={[
-    'reveal relative flex flex-col rounded-card border p-7 transition-[border-color,transform] duration-300 hover:-translate-y-1.5 hover:border-primary sm:p-10 lg:p-12',
+    'pricing-card reveal relative flex flex-col rounded-card border p-7 sm:p-10 lg:p-12',
     plan.featured
       ? 'border-primary bg-[linear-gradient(135deg,rgba(200,90,58,0.08),transparent_60%)]'
       : 'border-border bg-background',
@@ -35,7 +35,7 @@ const { plan } = Astro.props;
   </ul>
   <a
     class:list={[
-      'mt-8 inline-flex min-h-12 items-center justify-center rounded-brand px-5 py-3 text-center text-sm font-bold transition-[background-color,border-color,color,transform] hover:-translate-y-0.5 focus-visible:-translate-y-0.5',
+      'pricing-card-cta mt-8 inline-flex min-h-12 items-center justify-center rounded-brand px-5 py-3 text-center text-sm font-bold',
       plan.featured
         ? 'bg-primary text-white hover:bg-primary-hover focus-visible:bg-primary-hover'
         : 'border border-border text-foreground hover:border-primary hover:text-primary focus-visible:border-primary focus-visible:text-primary',

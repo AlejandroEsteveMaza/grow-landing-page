@@ -16,7 +16,7 @@ const { eyebrow, titleLines, emphasizedLine, description, primaryCta, secondaryC
 ---
 
 <section
-  class="relative flex min-h-screen scroll-mt-24 flex-col justify-center overflow-hidden px-6 pb-24 pt-36 md:px-10 md:pb-28 md:pt-44 lg:px-16"
+  class="relative flex min-h-screen flex-col justify-center overflow-hidden px-6 pb-24 pt-36 md:px-10 md:pb-28 md:pt-44 lg:px-16"
   id="inicio"
   aria-labelledby="hero-title"
 >
@@ -37,13 +37,13 @@ const { eyebrow, titleLines, emphasizedLine, description, primaryCta, secondaryC
     </p>
     <div class="hero-enter hero-enter-3 mt-10 flex flex-wrap gap-3 sm:mt-12">
       <a
-        class="inline-flex min-h-12 items-center justify-center rounded-brand bg-primary px-7 py-3.5 text-sm font-bold text-white transition-[background-color,transform] hover:-translate-y-0.5 hover:bg-primary-hover focus-visible:-translate-y-0.5 focus-visible:bg-primary-hover"
+        class="inline-flex min-h-12 w-full items-center justify-center rounded-brand bg-primary px-7 py-3.5 text-sm font-bold text-white transition-[background-color,transform] hover:-translate-y-0.5 hover:bg-primary-hover focus-visible:-translate-y-0.5 focus-visible:bg-primary-hover sm:w-auto"
         href={primaryCta.href}
       >
         {primaryCta.label}
       </a>
       <a
-        class="inline-flex min-h-12 items-center justify-center rounded-brand border border-border px-7 py-3.5 text-sm font-semibold text-foreground transition-[border-color,color,transform] hover:-translate-y-0.5 hover:border-primary hover:text-primary focus-visible:-translate-y-0.5 focus-visible:border-primary focus-visible:text-primary"
+        class="inline-flex min-h-12 w-full items-center justify-center rounded-brand border border-border px-7 py-3.5 text-sm font-semibold text-foreground transition-[border-color,color,transform] hover:-translate-y-0.5 hover:border-primary hover:text-primary focus-visible:-translate-y-0.5 focus-visible:border-primary focus-visible:text-primary sm:w-auto"
         href={secondaryCta.href}
       >
         {secondaryCta.label}
