@@ -20,7 +20,22 @@ const { articles, guides, copy } = Astro.props;
       {copy.title}<br /><span class="text-muted">{copy.mutedTitle}</span>
     </h2>
 
-    <div data-resources-tab-mount></div>
+    <div class="mt-12 flex border-b border-border" role="tablist" aria-label="Tipos de recursos" data-resources-tab-list hidden>
+      <button
+        type="button"
+        class="min-h-12 border-b-2 px-5 py-3 text-sm font-semibold transition-colors hover:text-foreground focus-visible:text-foreground"
+        data-resources-tab="blog"
+      >
+        Blog
+      </button>
+      <button
+        type="button"
+        class="min-h-12 border-b-2 px-5 py-3 text-sm font-semibold transition-colors hover:text-foreground focus-visible:text-foreground"
+        data-resources-tab="guides"
+      >
+        Guías gratuitas
+      </button>
+    </div>
 
     <section class="mt-12" data-resources-panel="blog">
       <h3 class="mb-6 font-display text-2xl font-bold text-foreground" data-resources-heading>Blog</h3>
@@ -60,7 +75,8 @@ const { articles, guides, copy } = Astro.props;
 
 <script is:inline>
   document.querySelectorAll('[data-resources-tabs]').forEach((resourceSection, sectionIndex) => {
-    const tabMount = resourceSection.querySelector('[data-resources-tab-mount]');
+    const tabList = resourceSection.querySelector('[data-resources-tab-list]');
+    const tabs = Array.from(resourceSection.querySelectorAll('[data-resources-tab]'));
     const panels = Array.from(resourceSection.querySelectorAll('[data-resources-panel]'));
     const panelData = panels.map((panel) => ({
       panel,
@@ -68,93 +84,69 @@ const { articles, guides, copy } = Astro.props;
       heading: panel.querySelector('[data-resources-heading]'),
     }));
 
-    if (!tabMount || panelData.length !== 2 || panelData.some(({ key, heading }) => !key || !heading) || new Set(panelData.map(({ key }) => key)).size !== panelData.length) return;
+    if (
+      !tabList ||
+      tabs.length !== 2 ||
+      panelData.length !== 2 ||
+      panelData.some(({ key, heading }) => !key || !heading) ||
+      new Set(panelData.map(({ key }) => key)).size !== panelData.length ||
+      new Set(tabs.map((tab) => tab.dataset.resourcesTab)).size !== tabs.length ||
+      tabs.some((tab) => !panelData.some(({ key }) => key === tab.dataset.resourcesTab))
+    ) return;
 
-    const restoreFallback = () => {
-      panelData.forEach(({ panel, heading }) => {
-        panel.hidden = false;
-        panel.removeAttribute('id');
-        panel.removeAttribute('role');
-        panel.removeAttribute('aria-labelledby');
-        panel.removeAttribute('tabindex');
-        panel.classList.replace('mt-10', 'mt-12');
-        heading.removeAttribute('id');
+    const instanceId = `resources-tabs-${sectionIndex + 1}`;
+
+    const selectTab = (selectedIndex, moveFocus) => {
+      tabs.forEach((tab, index) => {
+        const isSelected = index === selectedIndex;
+        tab.setAttribute('aria-selected', String(isSelected));
+        tab.tabIndex = isSelected ? 0 : -1;
+        tab.classList.toggle('border-primary', isSelected);
+        tab.classList.toggle('text-primary', isSelected);
+        tab.classList.toggle('border-transparent', !isSelected);
+        tab.classList.toggle('text-muted', !isSelected);
       });
-      tabMount.replaceChildren();
-      delete resourceSection.dataset.resourcesTabsReady;
+
+      panels.forEach((panel, index) => {
+        panel.hidden = index !== selectedIndex;
+      });
+
+      if (moveFocus) tabs[selectedIndex].focus();
     };
 
-    try {
-      const instanceId = `resources-tabs-${sectionIndex + 1}`;
-      const tabList = document.createElement('div');
-      const tabs = panelData.map(({ key, heading }, index) => {
-        const tab = document.createElement('button');
-        tab.type = 'button';
-        tab.textContent = heading.textContent?.trim() ?? '';
-        tab.className = 'min-h-12 border-b-2 px-5 py-3 text-sm font-semibold transition-colors hover:text-foreground focus-visible:text-foreground';
+    tabs.forEach((tab, index) => {
+      tab.addEventListener('click', () => selectTab(index, false));
+      tab.addEventListener('keydown', (event) => {
+        let nextIndex = index;
 
-        return { tab, key, heading, index };
+        if (event.key === 'ArrowRight') nextIndex = (index + 1) % tabs.length;
+        else if (event.key === 'ArrowLeft') nextIndex = (index - 1 + tabs.length) % tabs.length;
+        else if (event.key === 'Home') nextIndex = 0;
+        else if (event.key === 'End') nextIndex = tabs.length - 1;
+        else return;
+
+        event.preventDefault();
+        selectTab(nextIndex, true);
       });
 
-      const selectTab = (selectedIndex, moveFocus) => {
-        tabs.forEach(({ tab }, index) => {
-          const isSelected = index === selectedIndex;
-          tab.setAttribute('aria-selected', String(isSelected));
-          tab.tabIndex = isSelected ? 0 : -1;
-          tab.classList.toggle('border-primary', isSelected);
-          tab.classList.toggle('text-primary', isSelected);
-          tab.classList.toggle('border-transparent', !isSelected);
-          tab.classList.toggle('text-muted', !isSelected);
-        });
+      const key = tab.dataset.resourcesTab;
+      const panelDataEntry = panelData.find((entry) => entry.key === key);
+      const tabId = `${instanceId}-tab-${key}`;
+      const panelId = `${instanceId}-panel-${key}`;
 
-        panelData.forEach(({ panel }, index) => {
-          panel.hidden = index !== selectedIndex;
-        });
+      tab.id = tabId;
+      tab.setAttribute('role', 'tab');
+      tab.setAttribute('aria-controls', panelId);
+      panelDataEntry.heading.id = `${instanceId}-heading-${key}`;
+      panelDataEntry.panel.id = panelId;
+      panelDataEntry.panel.setAttribute('role', 'tabpanel');
+      panelDataEntry.panel.setAttribute('aria-labelledby', tabId);
+      panelDataEntry.panel.tabIndex = 0;
+      panelDataEntry.panel.classList.replace('mt-12', 'mt-10');
+    });
 
-        if (moveFocus) tabs[selectedIndex].tab.focus();
-      };
-
-      tabs.forEach(({ tab, index }) => {
-        tab.addEventListener('click', () => selectTab(index, false));
-        tab.addEventListener('keydown', (event) => {
-          let nextIndex = index;
-
-          if (event.key === 'ArrowRight') nextIndex = (index + 1) % tabs.length;
-          else if (event.key === 'ArrowLeft') nextIndex = (index - 1 + tabs.length) % tabs.length;
-          else if (event.key === 'Home') nextIndex = 0;
-          else if (event.key === 'End') nextIndex = tabs.length - 1;
-          else return;
-
-          event.preventDefault();
-          selectTab(nextIndex, true);
-        });
-      });
-
-      tabList.className = 'mt-12 flex border-b border-border';
-      tabList.setAttribute('role', 'tablist');
-      tabList.setAttribute('aria-label', 'Tipos de recursos');
-
-      tabs.forEach(({ tab, key, heading, index }) => {
-        const tabId = `${instanceId}-tab-${key}`;
-        const panelId = `${instanceId}-panel-${key}`;
-
-        heading.id = `${instanceId}-heading-${key}`;
-        tab.id = tabId;
-        tab.setAttribute('role', 'tab');
-        tab.setAttribute('aria-controls', panelId);
-        panelData[index].panel.id = panelId;
-        panelData[index].panel.setAttribute('role', 'tabpanel');
-        panelData[index].panel.setAttribute('aria-labelledby', tabId);
-        panelData[index].panel.tabIndex = 0;
-        panelData[index].panel.classList.replace('mt-12', 'mt-10');
-        tabList.append(tab);
-      });
-
-      selectTab(0, false);
-      tabMount.append(tabList);
-      resourceSection.dataset.resourcesTabsReady = 'true';
-    } catch {
-      restoreFallback();
-    }
+    selectTab(0, false);
+    tabList.hidden = false;
+    resourceSection.dataset.resourcesTabsReady = 'true';
   });
 </script>
