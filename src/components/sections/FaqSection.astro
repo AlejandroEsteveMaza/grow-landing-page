@@ -85,13 +85,17 @@ const { items, copy } = Astro.props;
         return;
       }
 
-      const onTransitionEnd = (event: TransitionEvent): void => {
+      const onTransitionFinish = (event: TransitionEvent): void => {
         if (event.target !== answer || event.propertyName !== 'grid-template-rows') return;
         finishClosing();
       };
 
-      stopClosing = () => answer?.removeEventListener('transitionend', onTransitionEnd);
-      answer?.addEventListener('transitionend', onTransitionEnd);
+      stopClosing = () => {
+        answer?.removeEventListener('transitionend', onTransitionFinish);
+        answer?.removeEventListener('transitioncancel', onTransitionFinish);
+      };
+      answer?.addEventListener('transitionend', onTransitionFinish);
+      answer?.addEventListener('transitioncancel', onTransitionFinish);
     };
 
     controls.set(item, setOpen);

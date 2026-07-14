@@ -11,7 +11,7 @@ interface Props {
 const { articles, guides, copy } = Astro.props;
 ---
 
-<section class="border-b border-border" id="recursos" aria-labelledby="resources-title" data-tabs>
+<section class="border-b border-border" id="recursos" aria-labelledby="resources-title" data-resources-tabs>
   <div class="mx-auto w-full max-w-site px-6 py-20 md:px-10 md:py-28 lg:px-16 lg:py-32">
     <p class="reveal flex items-center gap-3 text-[0.68rem] font-semibold uppercase tracking-[0.25em] text-primary">
       <span class="h-px w-6 bg-primary" aria-hidden="true"></span>{copy.eyebrow}
@@ -20,34 +20,10 @@ const { articles, guides, copy } = Astro.props;
       {copy.title}<br /><span class="text-muted">{copy.mutedTitle}</span>
     </h2>
 
-    <div class="mt-12 border-b border-border" role="tablist" aria-label="Tipos de recursos" data-tablist>
-      <button
-        class="min-h-12 border-b-2 border-primary px-5 py-3 text-sm font-semibold text-primary transition-colors hover:text-foreground focus-visible:text-foreground"
-        id="tab-blog"
-        type="button"
-        role="tab"
-        aria-selected="true"
-        aria-controls="panel-blog"
-        data-tab="blog"
-      >
-        Blog
-      </button>
-      <button
-        class="min-h-12 border-b-2 border-transparent px-5 py-3 text-sm font-semibold text-muted transition-colors hover:text-foreground focus-visible:text-foreground"
-        id="tab-guides"
-        type="button"
-        role="tab"
-        aria-selected="false"
-        aria-controls="panel-guides"
-        tabindex="-1"
-        data-tab="guides"
-      >
-        Guías gratuitas
-      </button>
-    </div>
+    <div data-resources-tab-mount></div>
 
-    <div class="resource-panel mt-10" id="panel-blog" role="tabpanel" aria-labelledby="tab-blog" tabindex="0" data-panel="blog">
-      <h3 class="mb-6 font-display text-2xl font-bold text-foreground no-js-resource-title">Artículos</h3>
+    <section class="mt-12" data-resources-panel="blog">
+      <h3 class="mb-6 font-display text-2xl font-bold text-foreground" data-resources-heading>Blog</h3>
       <div class="grid gap-5 lg:grid-cols-3">
         {
           articles.map((article) => (
@@ -61,10 +37,10 @@ const { articles, guides, copy } = Astro.props;
           ))
         }
       </div>
-    </div>
+    </section>
 
-    <div class="resource-panel mt-12" id="panel-guides" role="tabpanel" aria-labelledby="tab-guides" tabindex="0" data-panel="guides" hidden>
-      <h3 class="mb-6 font-display text-2xl font-bold text-foreground no-js-resource-title">Guías gratuitas</h3>
+    <section class="mt-12" data-resources-panel="guides">
+      <h3 class="mb-6 font-display text-2xl font-bold text-foreground" data-resources-heading>Guías gratuitas</h3>
       <div class="grid gap-5 md:grid-cols-2">
         {
           guides.map((guide) => (
@@ -78,53 +54,107 @@ const { articles, guides, copy } = Astro.props;
           ))
         }
       </div>
-    </div>
+    </section>
   </div>
 </section>
 
-<noscript><style>#panel-guides[hidden] { display: block !important; }</style></noscript>
+<script is:inline>
+  document.querySelectorAll('[data-resources-tabs]').forEach((resourceSection, sectionIndex) => {
+    const tabMount = resourceSection.querySelector('[data-resources-tab-mount]');
+    const panels = Array.from(resourceSection.querySelectorAll('[data-resources-panel]'));
+    const panelData = panels.map((panel) => ({
+      panel,
+      key: panel.dataset.resourcesPanel,
+      heading: panel.querySelector('[data-resources-heading]'),
+    }));
 
-<script>
-  document.documentElement.classList.add('js');
+    if (!tabMount || panelData.length !== 2 || panelData.some(({ key, heading }) => !key || !heading) || new Set(panelData.map(({ key }) => key)).size !== panelData.length) return;
 
-  document.querySelectorAll<HTMLElement>('[data-tabs]').forEach((tabGroup) => {
-    const tabs = Array.from(tabGroup.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
-    const panels = Array.from(tabGroup.querySelectorAll<HTMLElement>('[role="tabpanel"]'));
-
-    const selectTab = (selectedIndex: number, moveFocus: boolean): void => {
-      tabs.forEach((tab, index) => {
-        const isSelected = index === selectedIndex;
-        tab.setAttribute('aria-selected', String(isSelected));
-        tab.tabIndex = isSelected ? 0 : -1;
-        tab.classList.toggle('border-primary', isSelected);
-        tab.classList.toggle('text-primary', isSelected);
-        tab.classList.toggle('border-transparent', !isSelected);
-        tab.classList.toggle('text-muted', !isSelected);
+    const restoreFallback = () => {
+      panelData.forEach(({ panel, heading }) => {
+        panel.hidden = false;
+        panel.removeAttribute('id');
+        panel.removeAttribute('role');
+        panel.removeAttribute('aria-labelledby');
+        panel.removeAttribute('tabindex');
+        panel.classList.replace('mt-10', 'mt-12');
+        heading.removeAttribute('id');
       });
-
-      panels.forEach((panel, index) => {
-        panel.hidden = index !== selectedIndex;
-      });
-
-      if (moveFocus) tabs[selectedIndex]?.focus();
+      tabMount.replaceChildren();
+      delete resourceSection.dataset.resourcesTabsReady;
     };
 
-    tabs.forEach((tab, index) => {
-      tab.addEventListener('click', () => selectTab(index, false));
-      tab.addEventListener('keydown', (event) => {
-        let nextIndex = index;
+    try {
+      const instanceId = `resources-tabs-${sectionIndex + 1}`;
+      const tabList = document.createElement('div');
+      const tabs = panelData.map(({ key, heading }, index) => {
+        const tab = document.createElement('button');
+        tab.type = 'button';
+        tab.textContent = heading.textContent?.trim() ?? '';
+        tab.className = 'min-h-12 border-b-2 px-5 py-3 text-sm font-semibold transition-colors hover:text-foreground focus-visible:text-foreground';
 
-        if (event.key === 'ArrowRight') nextIndex = (index + 1) % tabs.length;
-        else if (event.key === 'ArrowLeft') nextIndex = (index - 1 + tabs.length) % tabs.length;
-        else if (event.key === 'Home') nextIndex = 0;
-        else if (event.key === 'End') nextIndex = tabs.length - 1;
-        else return;
-
-        event.preventDefault();
-        selectTab(nextIndex, true);
+        return { tab, key, heading, index };
       });
-    });
 
-    selectTab(0, false);
+      const selectTab = (selectedIndex, moveFocus) => {
+        tabs.forEach(({ tab }, index) => {
+          const isSelected = index === selectedIndex;
+          tab.setAttribute('aria-selected', String(isSelected));
+          tab.tabIndex = isSelected ? 0 : -1;
+          tab.classList.toggle('border-primary', isSelected);
+          tab.classList.toggle('text-primary', isSelected);
+          tab.classList.toggle('border-transparent', !isSelected);
+          tab.classList.toggle('text-muted', !isSelected);
+        });
+
+        panelData.forEach(({ panel }, index) => {
+          panel.hidden = index !== selectedIndex;
+        });
+
+        if (moveFocus) tabs[selectedIndex].tab.focus();
+      };
+
+      tabs.forEach(({ tab, index }) => {
+        tab.addEventListener('click', () => selectTab(index, false));
+        tab.addEventListener('keydown', (event) => {
+          let nextIndex = index;
+
+          if (event.key === 'ArrowRight') nextIndex = (index + 1) % tabs.length;
+          else if (event.key === 'ArrowLeft') nextIndex = (index - 1 + tabs.length) % tabs.length;
+          else if (event.key === 'Home') nextIndex = 0;
+          else if (event.key === 'End') nextIndex = tabs.length - 1;
+          else return;
+
+          event.preventDefault();
+          selectTab(nextIndex, true);
+        });
+      });
+
+      tabList.className = 'mt-12 flex border-b border-border';
+      tabList.setAttribute('role', 'tablist');
+      tabList.setAttribute('aria-label', 'Tipos de recursos');
+
+      tabs.forEach(({ tab, key, heading, index }) => {
+        const tabId = `${instanceId}-tab-${key}`;
+        const panelId = `${instanceId}-panel-${key}`;
+
+        heading.id = `${instanceId}-heading-${key}`;
+        tab.id = tabId;
+        tab.setAttribute('role', 'tab');
+        tab.setAttribute('aria-controls', panelId);
+        panelData[index].panel.id = panelId;
+        panelData[index].panel.setAttribute('role', 'tabpanel');
+        panelData[index].panel.setAttribute('aria-labelledby', tabId);
+        panelData[index].panel.tabIndex = 0;
+        panelData[index].panel.classList.replace('mt-12', 'mt-10');
+        tabList.append(tab);
+      });
+
+      selectTab(0, false);
+      tabMount.append(tabList);
+      resourceSection.dataset.resourcesTabsReady = 'true';
+    } catch {
+      restoreFallback();
+    }
   });
 </script>

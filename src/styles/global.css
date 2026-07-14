@@ -167,18 +167,6 @@
     border-color 500ms var(--ease-brand);
 }
 
-[data-tablist] {
-  display: none;
-}
-
-.js [data-tablist] {
-  display: flex;
-}
-
-.js .no-js-resource-title {
-  display: none;
-}
-
 .faq-item summary::-webkit-details-marker {
   display: none;
 }
