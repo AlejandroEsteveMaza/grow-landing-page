@@ -19,9 +19,21 @@ export interface SanityLandingPage {
   contact?: { description?: string; whatsappMessage?: string };
 }
 
+export type SanitySocialPlatform = 'linkedin' | 'instagram' | 'facebook' | 'x' | 'youtube' | 'tiktok';
+
+export interface SanitySocialProfile {
+  platform?: SanitySocialPlatform;
+  url?: string;
+}
+
 export interface SanitySiteSettings {
   name?: string;
   description?: string;
+  corporateContact?: {
+    email?: string;
+    whatsappNumber?: string;
+    socialProfiles?: SanitySocialProfile[];
+  };
 }
 
 export interface SanityOffer {

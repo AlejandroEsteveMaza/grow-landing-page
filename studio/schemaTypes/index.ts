@@ -66,7 +66,25 @@ const hero = defineType({
 
 const siteSettings = defineType({
   name: 'siteSettings', title: 'Ajustes del sitio', type: 'document',
-  fields: [defineField({ name: 'name', title: 'Nombre', type: 'string', validation: requiredText(80) }), defineField({ name: 'description', title: 'Descripción', type: 'text', validation: requiredText(160) })],
+  fields: [
+    defineField({ name: 'name', title: 'Nombre', type: 'string', validation: requiredText(80) }),
+    defineField({ name: 'description', title: 'Descripción', type: 'text', validation: requiredText(160) }),
+    defineField({
+      name: 'corporateContact', title: 'Datos de contacto corporativo', type: 'object',
+      description: 'Opcional. Estos datos se usan como información corporativa del sitio.',
+      fields: [
+        defineField({ name: 'email', title: 'Correo electrónico', type: 'string', description: 'Opcional. Correo de contacto corporativo.', validation: (rule) => rule.email().max(254) }),
+        defineField({ name: 'whatsappNumber', title: 'Número de WhatsApp', type: 'string', description: 'Opcional. Número internacional de 8 a 15 dígitos; puede incluir + al inicio.', validation: (rule) => rule.regex(/^\+?\d{8,15}$/, { name: 'número internacional' }) }),
+        defineField({
+          name: 'socialProfiles', title: 'Perfiles sociales', type: 'array', description: 'Opcional. Añade solo perfiles corporativos oficiales.',
+          of: [defineArrayMember({ type: 'object', title: 'Perfil social', fields: [
+            defineField({ name: 'platform', title: 'Plataforma', type: 'string', options: { list: [{ title: 'LinkedIn', value: 'linkedin' }, { title: 'Instagram', value: 'instagram' }, { title: 'Facebook', value: 'facebook' }, { title: 'X', value: 'x' }, { title: 'YouTube', value: 'youtube' }, { title: 'TikTok', value: 'tiktok' }] }, validation: (rule) => rule.required() }),
+            defineField({ name: 'url', title: 'URL del perfil', type: 'url', description: 'Debe usar HTTPS.', validation: (rule) => rule.required().uri({ scheme: ['https'] }) }),
+          ] })], validation: (rule) => rule.max(6),
+        }),
+      ],
+    }),
+  ],
   preview: { prepare: () => ({ title: 'Ajustes del sitio' }) },
 });
 

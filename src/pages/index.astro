@@ -7,7 +7,6 @@ import ProcessSection from '../components/sections/ProcessSection.astro';
 import ResourcesSection from '../components/sections/ResourcesSection.astro';
 import ServicesSection from '../components/sections/ServicesSection.astro';
 import TeamSection from '../components/sections/TeamSection.astro';
-import { siteConfig } from '../config/site';
 import { getLandingContent } from '../lib/content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import type { JsonLd, SeoMeta } from '../types/content';
@@ -50,7 +49,7 @@ const faqSchema: JsonLd = {
   <ResourcesSection articles={content.articles} guides={content.guides} copy={content.sectionCopy.resources} />
   <FaqSection items={content.faqItems} copy={content.sectionCopy.faq} />
   <ContactSection
-    whatsappNumber={siteConfig.whatsappNumber}
+    whatsappNumber={content.site.corporateContact.whatsappNumber}
     whatsappMessage={content.contact.whatsappMessage}
     serviceOptions={content.contactServiceOptions}
     description={content.contact.description}

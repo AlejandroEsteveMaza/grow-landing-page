@@ -3,7 +3,9 @@ export const landingPageQuery = `*[_type == "landingPage" && _id == "landingPage
 }`;
 
 export const siteSettingsQuery = `*[_type == "siteSettings" && _id == "siteSettings"][0] {
-  name, description
+  name, description, corporateContact {
+    email, whatsappNumber, socialProfiles[] { platform, url }
+  }
 }`;
 
 export const servicesQuery = `*[_type == "service" && enabled == true] | order(order asc) {

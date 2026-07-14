@@ -7,11 +7,19 @@ import { teamMembers } from '../data/team';
 import { siteConfig } from '../config/site';
 import { sanityClient, sanityConfig } from './sanity/config';
 import { faqQuery, landingPageQuery, offersQuery, resourcesQuery, servicesQuery, siteSettingsQuery, teamQuery } from './sanity/queries';
-import type { SanityLandingPage, SanityOffer, SanityResource, SanitySiteSettings, SanityTeamMember } from './sanity/types';
+import type { SanityLandingPage, SanityOffer, SanityResource, SanitySiteSettings, SanitySocialPlatform, SanityTeamMember } from './sanity/types';
 import type { ArticlePreview, FaqItem, GuidePreview, MaintenancePlan, PricingPlan, ProcessStep, SectionCopy, Service, TeamMember } from '../types/content';
 
 export interface LandingContent {
-  site: { name: string; description: string };
+  site: {
+    name: string;
+    description: string;
+    corporateContact: {
+      email: string | null;
+      whatsappNumber: string | null;
+      socialProfiles: readonly { platform: SanitySocialPlatform; url: string }[];
+    };
+  };
   services: readonly Service[];
   processSteps: readonly ProcessStep[];
   teamMembers: readonly TeamMember[];
@@ -53,6 +61,11 @@ const localContent: LandingContent = {
   site: {
     name: siteConfig.name,
     description: siteConfig.description,
+    corporateContact: {
+      email: null,
+      whatsappNumber: siteConfig.whatsappNumber,
+      socialProfiles: [],
+    },
   },
   services,
   processSteps,
@@ -108,6 +121,11 @@ const externalHttpsAction = (action: SanityResource['action']): PublishedResourc
 };
 
 const nonEmptyText = (value: string | undefined): string | undefined => value?.trim() || undefined;
+
+const whatsappNumber = (value: string | undefined): string | undefined => {
+  const number = nonEmptyText(value);
+  return number && /^\+?\d{8,15}$/.test(number) ? number.replace(/^\+/, '') : undefined;
+};
 
 const heroCta = (cta: { label?: string; href?: string } | undefined): { label: string; href: string } | undefined => {
   const label = nonEmptyText(cta?.label);
@@ -176,6 +194,14 @@ export async function getLandingContent(): Promise<LandingContent> {
       site: {
         name: nonEmptyText(siteSettings?.name) ?? localContent.site.name,
         description: nonEmptyText(siteSettings?.description) ?? localContent.site.description,
+        corporateContact: {
+          email: nonEmptyText(siteSettings?.corporateContact?.email) ?? localContent.site.corporateContact.email,
+          whatsappNumber: whatsappNumber(siteSettings?.corporateContact?.whatsappNumber) ?? localContent.site.corporateContact.whatsappNumber,
+          socialProfiles: siteSettings?.corporateContact?.socialProfiles?.flatMap((profile) => {
+            const url = nonEmptyText(profile.url);
+            return profile.platform && url ? [{ platform: profile.platform, url }] : [];
+          }) ?? localContent.site.corporateContact.socialProfiles,
+        },
       },
       services: mappedServices.length ? mappedServices : localContent.services,
       processSteps: mappedProcessSteps.length ? mappedProcessSteps : localContent.processSteps,
