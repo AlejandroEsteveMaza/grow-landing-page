@@ -183,8 +183,8 @@ export async function getLandingContent(): Promise<LandingContent> {
       pricingPlans: mappedPlans.length ? mappedPlans : localContent.pricingPlans,
       maintenancePlan: mappedMaintenance,
       faqItems: mappedFaq.length ? mappedFaq : localContent.faqItems,
-      articles: cmsArticles,
-      guides: cmsGuides,
+      articles: cmsArticles.length ? cmsArticles : localContent.articles,
+      guides: cmsGuides.length ? cmsGuides : localContent.guides,
       contactServiceOptions: configuredOffers.length ? [...configuredOffers, 'Otro / Tengo dudas'] : localContent.contactServiceOptions,
       hero: {
         ...mappedHero,
