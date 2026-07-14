@@ -30,11 +30,11 @@ npm run build
 
 ## Sanity
 
-La web pública sigue generándose estáticamente. Sanity se activa únicamente cuando existen valores válidos para `PUBLIC_SANITY_PROJECT_ID` y `PUBLIC_SANITY_DATASET` en `.env`; si falta uno, el build conserva el contenido local actual y no consulta Sanity.
+La web pública sigue generándose estáticamente. Sanity se activa durante el build únicamente cuando existen valores válidos para `SANITY_PROJECT_ID`, `SANITY_DATASET` y `SANITY_API_TOKEN` en el `.env` raíz; si falta alguno, el build conserva el contenido local actual y no consulta Sanity. Estas variables no usan el prefijo `PUBLIC_`, por lo que el token solo llega al cliente de compilación y nunca al sitio estático generado.
 
-1. Copia `.env.example` a `.env` y añade el identificador y dataset de un proyecto Sanity ya creado.
+1. Copia `.env.example` a `.env` y añade el identificador, dataset y un token de lectura de un proyecto Sanity ya creado. No incluyas el valor del token en documentación, control de versiones ni variables `PUBLIC_`.
 2. Crea o autentica ese proyecto por separado siguiendo la documentación de Sanity. Este repositorio no crea proyectos remotos ni contiene credenciales.
-3. En `studio/`, copia `.env.example` a `.env`, usa los mismos valores como `SANITY_STUDIO_PROJECT_ID` y `SANITY_STUDIO_DATASET`, instala dependencias con `npm install` y ejecuta `npm run dev`.
+3. En `studio/`, copia `.env.example` a `.env`, usa los mismos identificador y dataset como `SANITY_STUDIO_PROJECT_ID` y `SANITY_STUDIO_DATASET`, instala dependencias con `npm install` y ejecuta `npm run dev`. Estas variables del Studio no son secretas y son distintas de las tres variables privadas del build raíz.
 4. El Studio usa `basePath: '/admin'`. Una publicación combinada requiere composición de build y enrutado de despliegue específicos de la plataforma elegida. No se incluye configuración de despliegue y `/admin` no debe indexarse.
 
 Los recursos solo generan `/recursos` y `/recursos/[slug]` cuando Sanity está configurado y el registro publicado tiene slug global, fecha, extracto, portada con alt, SEO y Portable Text completos. Los marcadores locales de próximos recursos no generan páginas indexables.

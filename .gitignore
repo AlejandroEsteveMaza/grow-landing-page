@@ -15,7 +15,11 @@ pnpm-debug.log*
 
 # environment variables
 .env
-.env.production
+/.env.*
+!/.env.example
+studio/.env.*
+!/studio/.env.example
+studio/.sanity/
 
 # macOS-specific files
 .DS_Store
@@ -26,3 +30,5 @@ pnpm-debug.log*
 # local tool state
 .atl/
 .codegraph/
+/.opencode/
+/.gga

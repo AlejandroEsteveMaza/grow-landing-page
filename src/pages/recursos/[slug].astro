@@ -1,5 +1,5 @@
 ---
-import { toHTML } from '@portabletext/to-html';
+import { escapeHTML, toHTML } from '@portabletext/to-html';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getPublishedResources } from '../../lib/content';
 import type { JsonLd, SeoMeta } from '../../types/content';
@@ -18,7 +18,25 @@ const articleSchema: JsonLd = {
   datePublished: resource.publishedAt,
   description: resource.excerpt,
 };
-const bodyHtml = toHTML(resource.body as Parameters<typeof toHTML>[0]);
+const bodyHtml = toHTML(resource.body as Parameters<typeof toHTML>[0], {
+  components: {
+    types: {
+      imageWithAlt: ({ value }) => {
+        const url = value.asset?.url;
+        const alt = value.alt?.trim();
+        if (typeof url !== 'string' || !alt) return '';
+
+        try {
+          if (new URL(url).protocol !== 'https:') return '';
+        } catch {
+          return '';
+        }
+
+        return `<figure><img src="${escapeHTML(url)}" alt="${escapeHTML(alt)}" loading="lazy"></figure>`;
+      },
+    },
+  },
+});
 ---
 
 <BaseLayout {...seo} schemas={[articleSchema]}>
