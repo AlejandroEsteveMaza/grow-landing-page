@@ -12,19 +12,19 @@ import { getLandingContent } from '../lib/content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import type { JsonLd, SeoMeta } from '../types/content';
 
+const content = await getLandingContent();
+
 const seo = {
   title: 'GROW · Webs a medida que convierten',
-  description: siteConfig.description,
+  description: content.site.description,
   type: 'website',
 } satisfies SeoMeta;
-
-const content = await getLandingContent();
 
 const professionalServiceSchema: JsonLd = {
   '@context': 'https://schema.org',
   '@type': 'ProfessionalService',
-  name: siteConfig.name,
-  description: siteConfig.description,
+  name: content.site.name,
+  description: content.site.description,
 };
 
 const faqSchema: JsonLd = {
@@ -41,7 +41,7 @@ const faqSchema: JsonLd = {
 };
 ---
 
-<BaseLayout {...seo} schemas={[professionalServiceSchema, faqSchema]}>
+<BaseLayout {...seo} siteName={content.site.name} schemas={[professionalServiceSchema, faqSchema]}>
   <HeroSection {...content.hero} />
   <ServicesSection services={content.services} copy={content.sectionCopy.services} />
   <ProcessSection steps={content.processSteps} copy={content.sectionCopy.process} />

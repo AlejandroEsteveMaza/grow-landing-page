@@ -6,6 +6,7 @@ import '../styles/global.css';
 import type { JsonLd, SeoMeta } from '../types/content';
 
 interface Props extends SeoMeta {
+  siteName?: string;
   schemas?: readonly JsonLd[];
 }
 
@@ -16,6 +17,7 @@ const {
   image,
   type = 'website',
   noindex = false,
+  siteName = siteConfig.name,
   schemas = [],
 } = Astro.props;
 
@@ -37,7 +39,7 @@ const serializeJsonLd = (schema: JsonLd): string => JSON.stringify(schema).repla
 
     <meta property="og:locale" content={siteConfig.locale} />
     <meta property="og:type" content={type} />
-    <meta property="og:site_name" content={siteConfig.name} />
+    <meta property="og:site_name" content={siteName} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     {canonical && <meta property="og:url" content={canonical} />}

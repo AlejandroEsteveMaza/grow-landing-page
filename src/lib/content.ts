@@ -4,12 +4,14 @@ import { maintenancePlan, pricingPlans } from '../data/pricing';
 import { articles, guides } from '../data/resources';
 import { services } from '../data/services';
 import { teamMembers } from '../data/team';
+import { siteConfig } from '../config/site';
 import { sanityClient, sanityConfig } from './sanity/config';
-import { faqQuery, landingPageQuery, offersQuery, resourcesQuery, servicesQuery, teamQuery } from './sanity/queries';
-import type { SanityLandingPage, SanityOffer, SanityResource, SanityTeamMember } from './sanity/types';
+import { faqQuery, landingPageQuery, offersQuery, resourcesQuery, servicesQuery, siteSettingsQuery, teamQuery } from './sanity/queries';
+import type { SanityLandingPage, SanityOffer, SanityResource, SanitySiteSettings, SanityTeamMember } from './sanity/types';
 import type { ArticlePreview, FaqItem, GuidePreview, MaintenancePlan, PricingPlan, ProcessStep, SectionCopy, Service, TeamMember } from '../types/content';
 
 export interface LandingContent {
+  site: { name: string; description: string };
   services: readonly Service[];
   processSteps: readonly ProcessStep[];
   teamMembers: readonly TeamMember[];
@@ -24,6 +26,8 @@ export interface LandingContent {
     titleLines: readonly string[];
     emphasizedLine: string;
     description: string;
+    primaryCta: { label: string; href: string };
+    secondaryCta: { label: string; href: string };
     stats: readonly { value: string; label: string }[];
     marqueeItems: readonly string[];
   };
@@ -46,6 +50,10 @@ export interface PublishedResource {
 }
 
 const localContent: LandingContent = {
+  site: {
+    name: siteConfig.name,
+    description: siteConfig.description,
+  },
   services,
   processSteps,
   teamMembers,
@@ -60,6 +68,8 @@ const localContent: LandingContent = {
     titleLines: ['Tu web no es', 'decoración.', 'Es tu'],
     emphasizedLine: 'motor de ventas.',
     description: 'Diseñamos webs a medida para profesionales que quieren una presencia digital que los represente, aparezca en Google y transmita confianza desde el primer clic.',
+    primaryCta: { label: 'Solicitar presupuesto', href: '#contacto' },
+    secondaryCta: { label: 'Ver servicios', href: '#servicios' },
     stats: heroStats,
     marqueeItems,
   },
@@ -97,13 +107,29 @@ const externalHttpsAction = (action: SanityResource['action']): PublishedResourc
   }
 };
 
+const nonEmptyText = (value: string | undefined): string | undefined => value?.trim() || undefined;
+
+const heroCta = (cta: { label?: string; href?: string } | undefined): { label: string; href: string } | undefined => {
+  const label = nonEmptyText(cta?.label);
+  const href = nonEmptyText(cta?.href);
+  if (!label || !href) return undefined;
+  if (/^#[A-Za-z][\w-]*$/.test(href)) return { label, href };
+
+  try {
+    return new URL(href).protocol === 'https:' ? { label, href } : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 export const isSanityEnabled = (): boolean => sanityConfig !== null;
 
 export async function getLandingContent(): Promise<LandingContent> {
   if (!sanityClient) return localContent;
 
   try {
-    const [landing, cmsServices, offers, cmsTeam, cmsFaq, cmsResources] = await Promise.all([
+    const [siteSettings, landing, cmsServices, offers, cmsTeam, cmsFaq, cmsResources] = await Promise.all([
+      sanityClient.fetch<SanitySiteSettings | null>(siteSettingsQuery),
       sanityClient.fetch<SanityLandingPage | null>(landingPageQuery),
       sanityClient.fetch<Array<SanityOffer & { tier?: string }>>(servicesQuery),
       sanityClient.fetch<SanityOffer[]>(offersQuery),
@@ -140,10 +166,17 @@ export async function getLandingContent(): Promise<LandingContent> {
       symbol: '→', title: resource.title!, description: resource.excerpt!, href: `/recursos/${resource.slug}`,
     }));
     const hero = landing?.hero;
+    const mappedHero = hero?.eyebrow && hero.titleLines?.length && hero.emphasizedLine && hero.description && hero.stats?.length && hero.marqueeItems?.length
+      ? { eyebrow: hero.eyebrow, titleLines: hero.titleLines, emphasizedLine: hero.emphasizedLine, description: hero.description, stats: hero.stats.flatMap((stat) => stat.value && stat.label ? [{ value: stat.value, label: stat.label }] : []), marqueeItems: hero.marqueeItems }
+      : localContent.hero;
     const configuredOffers = offers.filter((offer) => offer.title && offer.enabled).map((offer) => offer.title!);
 
     return {
       ...localContent,
+      site: {
+        name: nonEmptyText(siteSettings?.name) ?? localContent.site.name,
+        description: nonEmptyText(siteSettings?.description) ?? localContent.site.description,
+      },
       services: mappedServices.length ? mappedServices : localContent.services,
       processSteps: mappedProcessSteps.length ? mappedProcessSteps : localContent.processSteps,
       teamMembers: mappedTeam.length ? mappedTeam : localContent.teamMembers,
@@ -153,9 +186,11 @@ export async function getLandingContent(): Promise<LandingContent> {
       articles: cmsArticles,
       guides: cmsGuides,
       contactServiceOptions: configuredOffers.length ? [...configuredOffers, 'Otro / Tengo dudas'] : localContent.contactServiceOptions,
-      hero: hero?.eyebrow && hero.titleLines?.length && hero.emphasizedLine && hero.description && hero.stats?.length && hero.marqueeItems?.length
-        ? { eyebrow: hero.eyebrow, titleLines: hero.titleLines, emphasizedLine: hero.emphasizedLine, description: hero.description, stats: hero.stats.flatMap((stat) => stat.value && stat.label ? [{ value: stat.value, label: stat.label }] : []), marqueeItems: hero.marqueeItems }
-        : localContent.hero,
+      hero: {
+        ...mappedHero,
+        primaryCta: heroCta(hero?.primaryCta) ?? localContent.hero.primaryCta,
+        secondaryCta: heroCta(hero?.secondaryCta) ?? localContent.hero.secondaryCta,
+      },
       contact: {
         description: landing?.contact?.description ?? localContent.contact.description,
         whatsappMessage: landing?.contact?.whatsappMessage ?? localContent.contact.whatsappMessage,

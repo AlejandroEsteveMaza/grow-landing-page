@@ -19,6 +19,11 @@ export interface SanityLandingPage {
   contact?: { description?: string; whatsappMessage?: string };
 }
 
+export interface SanitySiteSettings {
+  name?: string;
+  description?: string;
+}
+
 export interface SanityOffer {
   _id: string;
   title?: string;

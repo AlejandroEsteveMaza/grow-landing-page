@@ -2,6 +2,10 @@ export const landingPageQuery = `*[_type == "landingPage" && _id == "landingPage
   hero, sectionCopy, processSteps, contact
 }`;
 
+export const siteSettingsQuery = `*[_type == "siteSettings" && _id == "siteSettings"][0] {
+  name, description
+}`;
+
 export const servicesQuery = `*[_type == "service" && enabled == true] | order(order asc) {
   _id, title, tier, description, features, order
 }`;
