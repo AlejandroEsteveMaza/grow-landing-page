@@ -1,0 +1,115 @@
+---
+import Footer from '../components/global/Footer.astro';
+import Header from '../components/global/Header.astro';
+import { siteConfig } from '../config/site';
+import '../styles/global.css';
+import type { JsonLd, SeoMeta } from '../types/content';
+
+interface Props extends SeoMeta {
+  siteName?: string;
+  schemas?: readonly JsonLd[];
+}
+
+const {
+  title,
+  description,
+  canonical,
+  image,
+  type = 'website',
+  noindex = false,
+  siteName = siteConfig.name,
+  schemas = [],
+} = Astro.props;
+
+const serializeJsonLd = (schema: JsonLd): string => JSON.stringify(schema).replaceAll('<', '\\u003c');
+---
+
+<!doctype html>
+<html lang={siteConfig.language}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#1c1c1c" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    {canonical && <link rel="canonical" href={canonical} />}
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <meta property="og:locale" content={siteConfig.locale} />
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {canonical && <meta property="og:url" content={canonical} />}
+    {image && <meta property="og:image" content={image} />}
+
+    <meta name="twitter:card" content={image ? 'summary_large_image' : 'summary'} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {image && <meta name="twitter:image" content={image} />}
+
+    {
+      schemas.map((schema) => (
+        <script is:inline type="application/ld+json" set:html={serializeJsonLd(schema)} />
+      ))
+    }
+  </head>
+  <body>
+    <a
+      class="fixed left-4 top-4 z-[100] -translate-y-24 rounded-brand bg-primary px-4 py-3 text-sm font-bold text-white transition-transform focus:translate-y-0"
+      href="#contenido-principal"
+    >
+      Saltar al contenido
+    </a>
+    <Header />
+    <main id="contenido-principal" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<script>
+  document.documentElement.classList.add('js');
+
+  const revealItems = Array.from(document.querySelectorAll<HTMLElement>('.reveal'));
+  const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const reduceMotion = motionQuery.matches;
+
+  if (!reduceMotion && 'IntersectionObserver' in window && revealItems.length > 0) {
+    document.documentElement.classList.add('reveal-enabled');
+
+    const revealIndexes = new Map<HTMLElement, number>();
+    document.querySelectorAll('section').forEach((section) => {
+      section.querySelectorAll<HTMLElement>('.reveal').forEach((item, index) => revealIndexes.set(item, index));
+    });
+
+    revealItems.forEach((item) => {
+      const index = revealIndexes.get(item) ?? 0;
+      item.style.setProperty('--reveal-delay', `${Math.min(index, 3) * 70}ms`);
+    });
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting && entry.boundingClientRect.top >= window.innerHeight) return;
+
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        });
+      },
+      { rootMargin: '0px 0px -5% 0px', threshold: 0.01 },
+    );
+
+    revealItems.forEach((item) => observer.observe(item));
+
+    motionQuery.addEventListener('change', (event) => {
+      if (!event.matches) return;
+
+      observer.disconnect();
+      revealItems.forEach((item) => item.classList.add('is-visible'));
+    });
+  }
+</script>

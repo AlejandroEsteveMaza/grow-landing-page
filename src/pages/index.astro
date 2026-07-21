@@ -1,0 +1,57 @@
+---
+import ContactSection from '../components/sections/ContactSection.astro';
+import FaqSection from '../components/sections/FaqSection.astro';
+import HeroSection from '../components/sections/HeroSection.astro';
+import PricingSection from '../components/sections/PricingSection.astro';
+import ProcessSection from '../components/sections/ProcessSection.astro';
+import ResourcesSection from '../components/sections/ResourcesSection.astro';
+import ServicesSection from '../components/sections/ServicesSection.astro';
+import TeamSection from '../components/sections/TeamSection.astro';
+import { getLandingContent } from '../lib/content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import type { JsonLd, SeoMeta } from '../types/content';
+
+const content = await getLandingContent();
+
+const seo = {
+  title: 'TuNorte · Webs a medida que convierten',
+  description: content.site.description,
+  type: 'website',
+} satisfies SeoMeta;
+
+const professionalServiceSchema: JsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfessionalService',
+  name: content.site.name,
+  description: content.site.description,
+};
+
+const faqSchema: JsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: content.faqItems.map((item) => ({
+    '@type': 'Question',
+    name: item.question,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: item.answer,
+    },
+  })),
+};
+---
+
+<BaseLayout {...seo} siteName={content.site.name} schemas={[professionalServiceSchema, faqSchema]}>
+  <HeroSection {...content.hero} />
+  <ServicesSection services={content.services} copy={content.sectionCopy.services} />
+  <ProcessSection steps={content.processSteps} copy={content.sectionCopy.process} />
+  <TeamSection members={content.teamMembers} copy={content.sectionCopy.team} />
+  <PricingSection plans={content.pricingPlans} maintenance={content.maintenancePlan} copy={content.sectionCopy.pricing} />
+  <ResourcesSection articles={content.articles} guides={content.guides} copy={content.sectionCopy.resources} />
+  <FaqSection items={content.faqItems} copy={content.sectionCopy.faq} />
+  <ContactSection
+    whatsappNumber={content.site.corporateContact.whatsappNumber}
+    whatsappMessage={content.contact.whatsappMessage}
+    serviceOptions={content.contactServiceOptions}
+    description={content.contact.description}
+  />
+</BaseLayout>

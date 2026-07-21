@@ -1,0 +1,116 @@
+---
+import type { FaqItem, SectionCopy } from '../../types/content';
+
+interface Props {
+  items: readonly FaqItem[];
+  copy: SectionCopy;
+}
+
+const { items, copy } = Astro.props;
+---
+
+<section class="border-b border-border bg-surface-strong" id="faq" aria-labelledby="faq-title">
+  <div class="mx-auto w-full max-w-site px-6 py-20 md:px-10 md:py-28 lg:px-16 lg:py-32">
+    <p class="reveal flex items-center gap-3 text-[0.68rem] font-semibold uppercase tracking-[0.25em] text-primary">
+      <span class="h-px w-6 bg-primary" aria-hidden="true"></span>{copy.eyebrow}
+    </p>
+    <h2 class="reveal mt-4 font-display text-[clamp(2.5rem,5vw,4.25rem)] font-black leading-[0.96] tracking-[-0.045em] text-foreground" id="faq-title">
+      {copy.title}<br /><span class="text-muted">{copy.mutedTitle}</span>
+    </h2>
+    <div class="reveal mt-12 max-w-3xl md:mt-16">
+      {
+        items.map((item) => (
+          <details class="faq-item group border-b border-border" data-faq-item>
+            <summary class="group/faq flex min-h-16 cursor-pointer list-none items-center justify-between gap-5 rounded-brand py-5 text-base font-semibold text-foreground transition-[background-color,color] duration-300 ease-[var(--ease-brand)] hover:bg-surface focus-visible:bg-surface focus-visible:text-primary-on-dark-surface sm:text-lg">
+              <span>{item.question}</span>
+              <span class="relative flex size-9 shrink-0 items-center justify-center rounded-full border border-border text-primary transition-[background-color,border-color] duration-300 ease-[var(--ease-brand)] group-hover/faq:border-primary group-hover/faq:bg-primary/10 group-focus-visible/faq:border-primary group-focus-visible/faq:bg-primary/10" aria-hidden="true">
+                <span class="faq-icon-stroke faq-icon-horizontal absolute h-px w-3.5 bg-current"></span>
+                <span class="faq-icon-stroke faq-icon-vertical absolute h-px w-3.5 bg-current"></span>
+              </span>
+            </summary>
+            <div class="faq-answer">
+              <div>
+                <p class="max-w-2xl pb-7 text-[0.95rem] leading-7 text-muted sm:pr-12">{item.answer}</p>
+              </div>
+            </div>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<script>
+  const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  const faqItems = Array.from(document.querySelectorAll<HTMLDetailsElement>('[data-faq-item]'));
+  const controls = new Map<HTMLDetailsElement, (isOpen: boolean) => void>();
+
+  faqItems.forEach((item) => {
+    const summary = item.querySelector('summary');
+    const answer = item.querySelector<HTMLElement>('.faq-answer');
+    let stopClosing: (() => void) | undefined;
+    let targetOpen = item.open;
+
+    const finishClosing = (): void => {
+      stopClosing?.();
+      stopClosing = undefined;
+      item.open = false;
+    };
+
+    const setOpen = (isOpen: boolean): void => {
+      targetOpen = isOpen;
+      stopClosing?.();
+      stopClosing = undefined;
+
+      if (motionQuery.matches) {
+        item.open = isOpen;
+        item.classList.toggle('is-open', isOpen);
+        return;
+      }
+
+      if (isOpen) {
+        item.open = true;
+        requestAnimationFrame(() => {
+          if (targetOpen) item.classList.add('is-open');
+        });
+        return;
+      }
+
+      const wasOpen = item.classList.contains('is-open');
+      item.classList.remove('is-open');
+
+      if (!wasOpen) {
+        item.open = false;
+        return;
+      }
+
+      const onTransitionFinish = (event: TransitionEvent): void => {
+        if (event.target !== answer || event.propertyName !== 'grid-template-rows') return;
+        finishClosing();
+      };
+
+      stopClosing = () => {
+        answer?.removeEventListener('transitionend', onTransitionFinish);
+        answer?.removeEventListener('transitioncancel', onTransitionFinish);
+      };
+      answer?.addEventListener('transitionend', onTransitionFinish);
+      answer?.addEventListener('transitioncancel', onTransitionFinish);
+    };
+
+    controls.set(item, setOpen);
+
+    summary?.addEventListener('click', (event) => {
+      event.preventDefault();
+      const isOpening = !targetOpen;
+
+      if (isOpening) {
+        controls.forEach((control, otherItem) => {
+          if (otherItem !== item) control(false);
+        });
+      }
+
+      setOpen(isOpening);
+    });
+  });
+</script>

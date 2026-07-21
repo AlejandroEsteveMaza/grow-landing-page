@@ -1,0 +1,37 @@
+---
+interface Props {
+  number: string | null;
+  message: string;
+}
+
+const { number, message } = Astro.props;
+const isConfigured = number !== null && /^\d{8,15}$/.test(number);
+const href = isConfigured ? `https://wa.me/${number}?text=${encodeURIComponent(message)}` : null;
+---
+
+{
+  href ? (
+    <a
+      class="inline-flex min-h-12 items-center gap-3 rounded-brand bg-whatsapp px-6 py-3 text-sm font-bold text-white transition-[background-color,transform] hover:-translate-y-0.5 hover:bg-whatsapp-hover focus-visible:-translate-y-0.5 focus-visible:bg-whatsapp-hover"
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <svg class="size-6" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M12 2a9.8 9.8 0 0 0-8.4 14.8L2 22l5.4-1.4A9.8 9.8 0 1 0 12 2Zm0 17.8a8 8 0 0 1-4.1-1.1l-.3-.2-3.2.8.9-3.1-.2-.3A8 8 0 1 1 12 19.8Zm4.4-6c-.2-.1-1.3-.6-1.5-.7s-.3-.1-.4.1-.5.7-.6.9-.2.2-.4.1a6.5 6.5 0 0 1-1.9-1.2 7.2 7.2 0 0 1-1.3-1.7c-.1-.2 0-.3.1-.4l.3-.3.2-.3a.3.3 0 0 0 0-.3l-.7-1.6c-.2-.4-.3-.3-.4-.3h-.4c-.2 0-.3.1-.5.3a2.1 2.1 0 0 0-.6 1.6 3.7 3.7 0 0 0 .8 2 8.6 8.6 0 0 0 3.3 2.9 11 11 0 0 0 1.1.4 2.8 2.8 0 0 0 1.3.1c.4-.1 1.3-.5 1.5-1s.2-.9.1-1-.2-.2-.4-.3Z" />
+      </svg>
+      Escribir por WhatsApp
+    </a>
+  ) : (
+    <span
+      class="inline-flex min-h-12 cursor-not-allowed items-center gap-3 rounded-brand border border-border bg-surface px-6 py-3 text-sm font-semibold text-muted"
+      aria-disabled="true"
+      title="Añade el número en src/config/site.ts para activar este enlace"
+    >
+      <svg class="size-6" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M12 2a9.8 9.8 0 0 0-8.4 14.8L2 22l5.4-1.4A9.8 9.8 0 1 0 12 2Zm0 17.8a8 8 0 0 1-4.1-1.1l-.3-.2-3.2.8.9-3.1-.2-.3A8 8 0 1 1 12 19.8Zm4.4-6c-.2-.1-1.3-.6-1.5-.7s-.3-.1-.4.1-.5.7-.6.9-.2.2-.4.1a6.5 6.5 0 0 1-1.9-1.2 7.2 7.2 0 0 1-1.3-1.7c-.1-.2 0-.3.1-.4l.3-.3.2-.3a.3.3 0 0 0 0-.3l-.7-1.6c-.2-.4-.3-.3-.4-.3h-.4c-.2 0-.3.1-.5.3a2.1 2.1 0 0 0-.6 1.6 3.7 3.7 0 0 0 .8 2 8.6 8.6 0 0 0 3.3 2.9 11 11 0 0 0 1.1.4 2.8 2.8 0 0 0 1.3.1c.4-.1 1.3-.5 1.5-1s.2-.9.1-1-.2-.2-.4-.3Z" />
+      </svg>
+      WhatsApp pendiente de configurar
+    </span>
+  )
+}

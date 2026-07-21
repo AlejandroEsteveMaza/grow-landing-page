@@ -1,0 +1,25 @@
+---
+import ServiceCard from '../cards/ServiceCard.astro';
+import type { SectionCopy, Service } from '../../types/content';
+
+interface Props {
+  services: readonly Service[];
+  copy: SectionCopy;
+}
+
+const { services, copy } = Astro.props;
+---
+
+<section class="border-b border-border bg-surface-strong" id="servicios" aria-labelledby="services-title">
+  <div class="mx-auto w-full max-w-site px-6 py-20 md:px-10 md:py-28 lg:px-16 lg:py-32">
+    <p class="reveal flex items-center gap-3 text-[0.68rem] font-semibold uppercase tracking-[0.25em] text-primary">
+      <span class="h-px w-6 bg-primary" aria-hidden="true"></span>{copy.eyebrow}
+    </p>
+    <h2 class="reveal mt-4 font-display text-[clamp(2.5rem,5vw,4.25rem)] font-black leading-[0.96] tracking-[-0.045em] text-foreground" id="services-title">
+      {copy.title}<br /><span class="text-muted">{copy.mutedTitle}</span>
+    </h2>
+    <div class="mt-14 grid gap-px bg-border md:mt-16 md:grid-cols-2">
+      {services.map((service) => <ServiceCard service={service} />)}
+    </div>
+  </div>
+</section>

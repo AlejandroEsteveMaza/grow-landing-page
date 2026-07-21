@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+# TODO: Añadir la URL del sitemap cuando se configure el dominio definitivo.
