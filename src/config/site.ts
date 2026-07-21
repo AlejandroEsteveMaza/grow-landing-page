@@ -1,7 +1,7 @@
 import type { NavItem } from '../types/content';
 
 export const siteConfig = {
-  name: 'GROW',
+  name: 'TuNorte',
   description:
     'Diseño web a medida para profesionales que quieren una presencia digital que inspire confianza y convierta visitas en oportunidades.',
   locale: 'es_ES',

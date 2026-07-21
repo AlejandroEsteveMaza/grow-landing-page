@@ -1,6 +1,6 @@
-# GROW Landing Page
+# TuNorte Landing Page
 
-Landing corporativa estática construida con Astro, TypeScript estricto y Tailwind CSS v4.
+Landing corporativa estática de TuNorte, construida con Astro, TypeScript estricto y Tailwind CSS v4.
 
 ## Requisitos
 

@@ -11,8 +11,8 @@ if (!projectId || !dataset) {
 }
 
 export default defineConfig({
-  name: 'grow',
-  title: 'GROW Content Studio',
+  name: 'tunorte',
+  title: 'TuNorte Content Studio',
   projectId,
   dataset,
   basePath: '/admin',
