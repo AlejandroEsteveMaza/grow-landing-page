@@ -2,7 +2,7 @@ import type { ImageMetadata } from 'astro';
 
 export interface NavItem {
   label: string;
-  href: `#${string}`;
+  href: `/#${string}`;
 }
 
 export interface HeroStat {

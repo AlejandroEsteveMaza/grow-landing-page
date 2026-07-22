@@ -12,9 +12,9 @@ export const siteConfig = {
 } as const;
 
 export const navigation: readonly NavItem[] = [
-  { label: 'Servicios', href: '#servicios' },
-  { label: 'Proceso', href: '#proceso' },
-  { label: 'Nosotros', href: '#nosotros' },
-  { label: 'Precios', href: '#precios' },
-  { label: 'Recursos', href: '#recursos' },
+  { label: 'Servicios', href: '/#servicios' },
+  { label: 'Proceso', href: '/#proceso' },
+  { label: 'Nosotros', href: '/#nosotros' },
+  { label: 'Precios', href: '/#precios' },
+  { label: 'Recursos', href: '/#recursos' },
 ];
