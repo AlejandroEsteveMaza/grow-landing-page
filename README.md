@@ -4,8 +4,8 @@ Landing corporativa estática de TuNorte, construida con Astro, TypeScript estri
 
 ## Requisitos
 
-- Node.js 22.12 o superior.
-- npm 11 o superior.
+- Node.js 22.16.0.
+- npm 10.9.2.
 
 ## Uso
 
@@ -25,7 +25,7 @@ npm run build
 - `src/lib/content.ts`: adaptador de contenido; conserva los datos locales hasta que Sanity esté configurado.
 - `src/lib/sanity`: cliente de solo lectura, consultas GROQ y tipos del CMS.
 - `studio`: Sanity Studio aislado de la salida pública de Astro.
-- `src/config/site.ts`: marca, dominio y datos de contacto.
+- `src/config/site.ts`: marca y datos de contacto.
 - `src/styles/global.css`: Tailwind v4, tokens y estilos globales mínimos.
 
 ## Sanity
@@ -47,6 +47,8 @@ Antes de migrar los datos de ejemplo, valida cada afirmación comercial, precio,
 
 La producción de la web se publica desde `main`; cualquier otra rama y cada pull request generan previews. Cloudflare proporciona `CF_PAGES_BRANCH` automáticamente. Si omites `DEPLOY_ENV`, la validación infiere `production` para `main` y `preview` para las demás ramas; un valor explícito se valida y prevalece. Producción exige el dataset `production` y preview exige `development`. No definas `CF_PAGES_BRANCH` manualmente en el dashboard.
 
+Solo producción publica canonicales con origen `https://tunorteweb.com`, `sitemap-index.xml` y un `robots.txt` que permite rastreo. Los builds locales y preview no generan sitemap, marcan los documentos como `noindex, nofollow` y sirven un `robots.txt` con `Disallow: /`. Cloudflare Pages añade además `X-Robots-Tag: noindex` a sus previews como protección de plataforma.
+
 ### Configuración de build
 
 | Campo de Pages | Valor |
@@ -54,7 +56,7 @@ La producción de la web se publica desde `main`; cualquier otra rama y cada pul
 | Rama de producción | `main` |
 | Comando de build | `npm run build` |
 | Directorio de salida | `dist` |
-| Versión de Node.js | `22.12.0` o superior |
+| Versión de Node.js | `22.16.0` |
 
 ### Variables por entorno
 
@@ -81,11 +83,10 @@ Sanity Studio necesita otro proyecto de Cloudflare Pages si se desea desplegarlo
 
 ## Configuración pendiente
 
-1. Define el dominio definitivo y añade canonical, sitemap y robots en una unidad posterior.
-2. Añade CI para validar builds de preview y producción sin exponer secretos.
-3. Diseña el flujo de promoción de contenido de `development` a `production`.
-4. Reconcilia el historial de ramas cuando exista una estrategia acordada; esta unidad no modifica ramas.
-5. Añade el número de WhatsApp en `src/config/site.ts` para activar el enlace.
-6. Conecta un backend al formulario en una fase posterior.
+1. Añade CI para validar builds de preview y producción sin exponer secretos.
+2. Diseña el flujo de promoción de contenido de `development` a `production`.
+3. Reconcilia el historial de ramas cuando exista una estrategia acordada; esta unidad no modifica ramas.
+4. Añade el número de WhatsApp en `src/config/site.ts` para activar el enlace.
+5. Conecta un backend al formulario en una fase posterior.
 
 La tipografía actual utiliza fuentes seguras del sistema. Las fuentes de marca podrán autoalojarse cuando se faciliten los archivos correspondientes.

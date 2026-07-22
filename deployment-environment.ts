@@ -26,17 +26,26 @@ const datasetPattern = /^[a-z0-9_-]+$/;
 
 const trimmed = (value: string | undefined): string | undefined => value?.trim() || undefined;
 
-const deploymentTarget = ({ deployEnv, branch, dataset }: DeploymentTargetInput): {
+export const resolveDeploymentEnvironment = ({ deployEnv, branch }: Pick<DeploymentTargetInput, 'deployEnv' | 'branch'>): {
   environment: DeployEnvironment;
   branch: string | undefined;
-  dataset: string | undefined;
-  errors: string[];
 } => {
   const normalizedBranch = trimmed(branch);
   const environment = trimmed(deployEnv) ?? (normalizedBranch === 'main' ? 'production' : normalizedBranch ? 'preview' : 'local');
   if (environment !== 'local' && environment !== 'preview' && environment !== 'production') {
     throw new Error('DEPLOY_ENV must be one of: local, preview, production.');
   }
+
+  return { environment, branch: normalizedBranch };
+};
+
+const deploymentTarget = ({ deployEnv, branch, dataset }: DeploymentTargetInput): {
+  environment: DeployEnvironment;
+  branch: string | undefined;
+  dataset: string | undefined;
+  errors: string[];
+} => {
+  const { environment, branch: normalizedBranch } = resolveDeploymentEnvironment({ deployEnv, branch });
 
   const normalizedDataset = trimmed(dataset);
   const errors: string[] = [];

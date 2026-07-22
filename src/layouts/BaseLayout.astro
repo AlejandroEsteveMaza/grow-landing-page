@@ -2,6 +2,7 @@
 import Footer from '../components/global/Footer.astro';
 import Header from '../components/global/Header.astro';
 import { siteConfig } from '../config/site';
+import { deploymentEnvironment } from '../lib/deployment';
 import '../styles/global.css';
 import type { JsonLd, SeoMeta } from '../types/content';
 
@@ -13,13 +14,26 @@ interface Props extends SeoMeta {
 const {
   title,
   description,
-  canonical,
+  canonical: canonicalProp,
   image,
   type = 'website',
   noindex = false,
   siteName = siteConfig.name,
   schemas = [],
 } = Astro.props;
+
+const isProduction = deploymentEnvironment === 'production';
+const robots = isProduction && !noindex ? 'index, follow' : 'noindex, nofollow';
+let canonical: URL | undefined;
+
+if (isProduction) {
+  if (!Astro.site) throw new Error('Astro site must be configured to generate canonical URLs.');
+
+  canonical = canonicalProp ? new URL(canonicalProp, Astro.site) : new URL(Astro.url.pathname, Astro.site);
+  if (canonical.protocol !== 'https:' || canonical.origin !== Astro.site.origin) {
+    throw new Error('Canonical URLs must use the configured HTTPS site origin.');
+  }
+}
 
 const serializeJsonLd = (schema: JsonLd): string => JSON.stringify(schema).replaceAll('<', '\\u003c');
 ---
@@ -33,7 +47,7 @@ const serializeJsonLd = (schema: JsonLd): string => JSON.stringify(schema).repla
     <meta name="theme-color" content="#1c1c1c" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <meta name="robots" content={robots} />
     {canonical && <link rel="canonical" href={canonical} />}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
