@@ -16,6 +16,12 @@ npm run check
 npm run build
 ```
 
+## Integración continua
+
+GitHub Actions ejecuta `npm ci`, comprobación y build de la web, valida que exista `dist/index.html`, e instala y construye Sanity Studio sin credenciales ni acceso a datos de producción. No despliega: Cloudflare Pages mantiene la integración de despliegue.
+
+Después de que el workflow se ejecute al menos una vez, configura manualmente la protección de `main` y `develop` para exigir el check **`Validate`**. GitHub no permite seleccionar ese check antes de su primera ejecución.
+
 ## Estructura
 
 - `src/pages`: rutas del sitio.
@@ -83,10 +89,9 @@ Sanity Studio necesita otro proyecto de Cloudflare Pages si se desea desplegarlo
 
 ## Configuración pendiente
 
-1. Añade CI para validar builds de preview y producción sin exponer secretos.
-2. Diseña el flujo de promoción de contenido de `development` a `production`.
-3. Reconcilia el historial de ramas cuando exista una estrategia acordada; esta unidad no modifica ramas.
-4. Añade el número de WhatsApp en `src/config/site.ts` para activar el enlace.
-5. Conecta un backend al formulario en una fase posterior.
+1. Diseña el flujo de promoción de contenido de `development` a `production`.
+2. Reconcilia el historial de ramas cuando exista una estrategia acordada; esta unidad no modifica ramas.
+3. Añade el número de WhatsApp en `src/config/site.ts` para activar el enlace.
+4. Conecta un backend al formulario en una fase posterior.
 
 La tipografía actual utiliza fuentes seguras del sistema. Las fuentes de marca podrán autoalojarse cuando se faciliten los archivos correspondientes.

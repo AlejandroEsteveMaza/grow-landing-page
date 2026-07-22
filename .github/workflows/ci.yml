@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+    branches: [develop, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DEPLOY_ENV: local
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22.16.0
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            studio/package-lock.json
+
+      - name: Assert toolchain versions
+        run: |
+          test "$(node --version)" = "v22.16.0"
+          test "$(npm --version)" = "10.9.2"
+
+      - name: Install website dependencies
+        run: npm ci
+
+      - name: Install Studio dependencies
+        run: npm ci --prefix studio
+
+      - name: Check website
+        run: npm run check
+
+      - name: Build website
+        run: npm run build
+
+      - name: Assert website output
+        run: test -f dist/index.html
+
+      - name: Build Studio
+        run: npm run build --prefix studio
+        env:
+          SANITY_STUDIO_PROJECT_ID: ci-placeholder
+          SANITY_STUDIO_DATASET: ci
