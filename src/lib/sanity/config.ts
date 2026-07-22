@@ -1,16 +1,19 @@
 import { createClient } from '@sanity/client';
+import { CF_PAGES_BRANCH, DEPLOY_ENV, SANITY_API_TOKEN, SANITY_DATASET, SANITY_PROJECT_ID } from 'astro:env/server';
+import { validateWebsiteEnvironment } from '../../../deployment-environment';
 
-const projectId = import.meta.env.SANITY_PROJECT_ID?.trim();
-const dataset = import.meta.env.SANITY_DATASET?.trim();
-const token = import.meta.env.SANITY_API_TOKEN?.trim();
-const isValidProjectId = projectId !== undefined && /^[a-z0-9-]+$/.test(projectId);
-const isValidDataset = dataset !== undefined && /^[a-z0-9_-]+$/.test(dataset);
-const isValidToken = token !== undefined && token.length > 0;
+export const deployment = validateWebsiteEnvironment({
+  deployEnv: DEPLOY_ENV,
+  branch: CF_PAGES_BRANCH,
+  projectId: SANITY_PROJECT_ID,
+  dataset: SANITY_DATASET,
+  token: SANITY_API_TOKEN,
+});
 
-export const sanityConfig = isValidProjectId && isValidDataset && isValidToken
-  ? { projectId, dataset, apiVersion: '2026-07-14' }
+export const sanityConfig = deployment.sanity
+  ? { projectId: deployment.sanity.projectId, dataset: deployment.sanity.dataset, apiVersion: '2026-07-14' }
   : null;
 
-export const sanityClient = sanityConfig && token
-  ? createClient({ ...sanityConfig, token, useCdn: false, perspective: 'published' })
+export const sanityClient = sanityConfig && deployment.sanity
+  ? createClient({ ...sanityConfig, token: deployment.sanity.token, useCdn: false, perspective: 'published' })
   : null;

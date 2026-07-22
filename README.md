@@ -30,23 +30,62 @@ npm run build
 
 ## Sanity
 
-La web pública sigue generándose estáticamente. Sanity se activa durante el build únicamente cuando existen valores válidos para `SANITY_PROJECT_ID`, `SANITY_DATASET` y `SANITY_API_TOKEN` en el `.env` raíz; si falta alguno, el build conserva el contenido local actual y no consulta Sanity. Estas variables no usan el prefijo `PUBLIC_`, por lo que el token solo llega al cliente de compilación y nunca al sitio estático generado.
+La web pública sigue generándose estáticamente. El build raíz usa tres valores de Sanity: `SANITY_PROJECT_ID`, `SANITY_DATASET` y `SANITY_API_TOKEN`. El identificador de proyecto y el dataset son configuración; solo el token es secreto. Ninguno usa el prefijo `PUBLIC_`, y el token se declara como variable secreta de servidor para que nunca llegue al sitio estático generado.
 
-1. Copia `.env.example` a `.env` y añade el identificador, dataset y un token de lectura de un proyecto Sanity ya creado. No incluyas el valor del token en documentación, control de versiones ni variables `PUBLIC_`.
+`DEPLOY_ENV` controla el comportamiento del contenido. En `local`, una configuración incompleta o un error de consulta permite usar el contenido local. En `preview` y `production`, la configuración, el dataset y las consultas deben ser válidos; el build falla en vez de publicar contenido local silenciosamente.
+
+1. Copia `.env.example` a `.env` y añade el identificador, dataset y un token de lectura de un proyecto Sanity ya creado. No incluyas el token en documentación, control de versiones ni variables `PUBLIC_`.
 2. Crea o autentica ese proyecto por separado siguiendo la documentación de Sanity. Este repositorio no crea proyectos remotos ni contiene credenciales.
-3. En `studio/`, copia `.env.example` a `.env`, usa los mismos identificador y dataset como `SANITY_STUDIO_PROJECT_ID` y `SANITY_STUDIO_DATASET`, instala dependencias con `npm install` y ejecuta `npm run dev`. Estas variables del Studio no son secretas y son distintas de las tres variables privadas del build raíz.
-4. El Studio usa `basePath: '/admin'`. Una publicación combinada requiere composición de build y enrutado de despliegue específicos de la plataforma elegida. No se incluye configuración de despliegue y `/admin` no debe indexarse.
+3. En `studio/`, copia `.env.example` a `.env`, usa los mismos identificador y dataset como `SANITY_STUDIO_PROJECT_ID` y `SANITY_STUDIO_DATASET`, instala dependencias con `npm install` y ejecuta `npm run dev`. Estas dos variables del Studio tampoco son secretas.
+4. El Studio conserva `basePath: '/admin'`, pero no forma parte del build de Astro.
 
 Los recursos solo generan `/recursos` y `/recursos/[slug]` cuando Sanity está configurado y el registro publicado tiene slug global, fecha, extracto, portada con alt, SEO y Portable Text completos. Los marcadores locales de próximos recursos no generan páginas indexables.
 
 Antes de migrar los datos de ejemplo, valida cada afirmación comercial, precio, biografía y contenido con el negocio. No hay seed automático para evitar publicar información no aprobada.
 
+## Cloudflare Pages
+
+La producción de la web se publica desde `main`; cualquier otra rama y cada pull request generan previews. Cloudflare proporciona `CF_PAGES_BRANCH` automáticamente. Si omites `DEPLOY_ENV`, la validación infiere `production` para `main` y `preview` para las demás ramas; un valor explícito se valida y prevalece. Producción exige el dataset `production` y preview exige `development`. No definas `CF_PAGES_BRANCH` manualmente en el dashboard.
+
+### Configuración de build
+
+| Campo de Pages | Valor |
+| --- | --- |
+| Rama de producción | `main` |
+| Comando de build | `npm run build` |
+| Directorio de salida | `dist` |
+| Versión de Node.js | `22.12.0` o superior |
+
+### Variables por entorno
+
+| Variable | Producción | Preview | Sensible |
+| --- | --- | --- | --- |
+| `DEPLOY_ENV` | `production` | `preview` | No |
+| `SANITY_PROJECT_ID` | Identificador del proyecto existente | El mismo identificador | No |
+| `SANITY_DATASET` | `production` | `development` | No |
+| `SANITY_API_TOKEN` | Token de lectura exclusivo de producción | Token de lectura exclusivo de preview | Sí |
+
+Usa dos tokens de solo lectura distintos, aunque ambos pertenezcan al mismo proyecto Sanity. Así se pueden rotar o revocar por entorno sin ampliar permisos ni reutilizar el secreto de producción.
+
+### Pasos en el dashboard
+
+1. Crea un proyecto de Cloudflare Pages conectado a este repositorio.
+2. Selecciona `main` como rama de producción.
+3. Configura `npm run build` y `dist` como comando y salida.
+4. En **Settings > Environment variables**, añade la fila de producción de la matriz al entorno **Production**.
+5. Añade la fila de preview al entorno **Preview** y guarda cada `SANITY_API_TOKEN` como secreto independiente.
+6. Despliega primero una rama distinta de `main` y confirma que Pages usa `CF_PAGES_BRANCH` junto con el dataset `development`.
+7. Despliega `main` únicamente cuando el dataset `production` esté preparado.
+
+Sanity Studio necesita otro proyecto de Cloudflare Pages si se desea desplegarlo: configura ese proyecto con directorio raíz `studio`, comando `npm run build`, salida `dist` y las variables `DEPLOY_ENV`, `SANITY_STUDIO_PROJECT_ID` y `SANITY_STUDIO_DATASET` equivalentes para producción y preview. El Studio gestiona la autenticación de usuarios; no reutilices `SANITY_API_TOKEN` en su build.
+
 ## Configuración pendiente
 
-1. Define el dominio definitivo en `src/config/site.ts` y en `astro.config.mjs` antes de añadir canonical y sitemap.
-2. Añade el número de WhatsApp en `src/config/site.ts` para activar el enlace.
-3. Configura Sanity y valida la migración editorial antes de publicar recursos reales.
-4. Conecta un backend al formulario en una fase posterior.
-5. Compón el Studio en `/admin` y aplica una regla de no indexación cuando exista una plataforma de despliegue definida.
+1. Define el dominio definitivo y añade canonical, sitemap y robots en una unidad posterior.
+2. Añade CI para validar builds de preview y producción sin exponer secretos.
+3. Diseña el flujo de promoción de contenido de `development` a `production`.
+4. Reconcilia el historial de ramas cuando exista una estrategia acordada; esta unidad no modifica ramas.
+5. Añade el número de WhatsApp en `src/config/site.ts` para activar el enlace.
+6. Conecta un backend al formulario en una fase posterior.
 
 La tipografía actual utiliza fuentes seguras del sistema. Las fuentes de marca podrán autoalojarse cuando se faciliten los archivos correspondientes.

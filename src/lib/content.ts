@@ -5,7 +5,7 @@ import { articles, guides } from '../data/resources';
 import { services } from '../data/services';
 import { teamMembers } from '../data/team';
 import { siteConfig } from '../config/site';
-import { sanityClient, sanityConfig } from './sanity/config';
+import { deployment, sanityClient, sanityConfig } from './sanity/config';
 import { faqQuery, landingPageQuery, offersQuery, resourcesQuery, servicesQuery, siteSettingsQuery, teamQuery } from './sanity/queries';
 import type { SanityLandingPage, SanityOffer, SanityResource, SanitySiteSettings, SanitySocialPlatform, SanityTeamMember } from './sanity/types';
 import type { ArticlePreview, FaqItem, GuidePreview, MaintenancePlan, PricingPlan, ProcessStep, SectionCopy, Service, TeamMember } from '../types/content';
@@ -122,6 +122,12 @@ const externalHttpsAction = (action: SanityResource['action']): PublishedResourc
 
 const nonEmptyText = (value: string | undefined): string | undefined => value?.trim() || undefined;
 
+const contentOrLocal = <T>(value: T | null | undefined | false, localValue: T, field: string): T => {
+  if (value !== null && value !== undefined && value !== false) return value;
+  if (deployment.environment === 'local') return localValue;
+  throw new Error(`Sanity ${field} content is missing or invalid for the ${deployment.environment} deployment.`);
+};
+
 const whatsappNumber = (value: string | undefined): string | undefined => {
   const number = nonEmptyText(value);
   return number && /^\+?\d{8,15}$/.test(number) ? number.replace(/^\+/, '') : undefined;
@@ -143,7 +149,7 @@ const heroCta = (cta: { label?: string; href?: string } | undefined): { label: s
 export const isSanityEnabled = (): boolean => sanityConfig !== null;
 
 export async function getLandingContent(): Promise<LandingContent> {
-  if (!sanityClient) return localContent;
+  if (!sanityClient) return contentOrLocal(null, localContent, 'configuration');
 
   try {
     const [siteSettings, landing, cmsServices, offers, cmsTeam, cmsFaq, cmsResources] = await Promise.all([
@@ -163,9 +169,9 @@ export async function getLandingContent(): Promise<LandingContent> {
         ? [{ number: `Paquete ${String(index + 1).padStart(2, '0')}`, name: offer.title, description: offer.description, price, note: offer.note, features: offer.features, cta: offer.cta.label, featured: Boolean(offer.featured) }]
         : [];
     });
-    const mappedMaintenance = maintenance && maintenance.title && priceLabel(maintenance.price) && maintenance.included?.length && maintenance.excluded?.length
+    const mappedMaintenance = contentOrLocal(maintenance && maintenance.title && priceLabel(maintenance.price) && maintenance.included?.length && maintenance.excluded?.length
       ? { name: maintenance.title, tagline: maintenance.description ?? '', price: priceLabel(maintenance.price)!, included: maintenance.included, excluded: maintenance.excluded }
-      : localContent.maintenancePlan;
+      : null, localContent.maintenancePlan, 'maintenance offer');
     const mappedServices = cmsServices.flatMap((service, index) => service.title && service.tier && service.description && service.features?.length
       ? [{ number: String(index + 1).padStart(2, '0'), tier: service.tier, title: service.title, description: service.description, features: service.features }]
       : []);
@@ -184,59 +190,63 @@ export async function getLandingContent(): Promise<LandingContent> {
       symbol: '→', title: resource.title!, description: resource.excerpt!, href: `/recursos/${resource.slug}`,
     }));
     const hero = landing?.hero;
-    const mappedHero = hero?.eyebrow && hero.titleLines?.length && hero.emphasizedLine && hero.description && hero.stats?.length && hero.marqueeItems?.length
+    const mappedHero = contentOrLocal<Omit<LandingContent['hero'], 'primaryCta' | 'secondaryCta'>>(hero?.eyebrow && hero.titleLines?.length && hero.emphasizedLine && hero.description && hero.stats?.length && hero.marqueeItems?.length
       ? { eyebrow: hero.eyebrow, titleLines: hero.titleLines, emphasizedLine: hero.emphasizedLine, description: hero.description, stats: hero.stats.flatMap((stat) => stat.value && stat.label ? [{ value: stat.value, label: stat.label }] : []), marqueeItems: hero.marqueeItems }
-      : localContent.hero;
+      : null, localContent.hero, 'hero');
     const configuredOffers = offers.filter((offer) => offer.title && offer.enabled).map((offer) => offer.title!);
 
     return {
       ...localContent,
       site: {
-        name: nonEmptyText(siteSettings?.name) ?? localContent.site.name,
-        description: nonEmptyText(siteSettings?.description) ?? localContent.site.description,
+        name: contentOrLocal(nonEmptyText(siteSettings?.name), localContent.site.name, 'site name'),
+        description: contentOrLocal(nonEmptyText(siteSettings?.description), localContent.site.description, 'site description'),
         corporateContact: {
-          email: nonEmptyText(siteSettings?.corporateContact?.email) ?? localContent.site.corporateContact.email,
-          whatsappNumber: whatsappNumber(siteSettings?.corporateContact?.whatsappNumber) ?? localContent.site.corporateContact.whatsappNumber,
+          email: nonEmptyText(siteSettings?.corporateContact?.email) ?? (deployment.environment === 'local' ? localContent.site.corporateContact.email : null),
+          whatsappNumber: whatsappNumber(siteSettings?.corporateContact?.whatsappNumber) ?? (deployment.environment === 'local' ? localContent.site.corporateContact.whatsappNumber : null),
           socialProfiles: siteSettings?.corporateContact?.socialProfiles?.flatMap((profile) => {
             const url = nonEmptyText(profile.url);
             return profile.platform && url ? [{ platform: profile.platform, url }] : [];
-          }) ?? localContent.site.corporateContact.socialProfiles,
+          }) ?? (deployment.environment === 'local' ? localContent.site.corporateContact.socialProfiles : []),
         },
       },
-      services: mappedServices.length ? mappedServices : localContent.services,
-      processSteps: mappedProcessSteps.length ? mappedProcessSteps : localContent.processSteps,
-      teamMembers: mappedTeam.length ? mappedTeam : localContent.teamMembers,
-      pricingPlans: mappedPlans.length ? mappedPlans : localContent.pricingPlans,
+      services: contentOrLocal(mappedServices.length ? mappedServices : null, localContent.services, 'services'),
+      processSteps: contentOrLocal(mappedProcessSteps.length ? mappedProcessSteps : null, localContent.processSteps, 'process steps'),
+      teamMembers: contentOrLocal(mappedTeam.length ? mappedTeam : null, localContent.teamMembers, 'team'),
+      pricingPlans: contentOrLocal(mappedPlans.length ? mappedPlans : null, localContent.pricingPlans, 'pricing offers'),
       maintenancePlan: mappedMaintenance,
-      faqItems: mappedFaq.length ? mappedFaq : localContent.faqItems,
-      articles: cmsArticles.length ? cmsArticles : localContent.articles,
-      guides: cmsGuides.length ? cmsGuides : localContent.guides,
-      contactServiceOptions: configuredOffers.length ? [...configuredOffers, 'Otro / Tengo dudas'] : localContent.contactServiceOptions,
+      faqItems: contentOrLocal(mappedFaq.length ? mappedFaq : null, localContent.faqItems, 'FAQ'),
+      articles: deployment.environment === 'local' && !cmsArticles.length ? localContent.articles : cmsArticles,
+      guides: deployment.environment === 'local' && !cmsGuides.length ? localContent.guides : cmsGuides,
+      contactServiceOptions: contentOrLocal(configuredOffers.length ? [...configuredOffers, 'Otro / Tengo dudas'] : null, localContent.contactServiceOptions, 'contact service options'),
       hero: {
         ...mappedHero,
-        primaryCta: heroCta(hero?.primaryCta) ?? localContent.hero.primaryCta,
-        secondaryCta: heroCta(hero?.secondaryCta) ?? localContent.hero.secondaryCta,
+        primaryCta: contentOrLocal(heroCta(hero?.primaryCta), localContent.hero.primaryCta, 'primary hero CTA'),
+        secondaryCta: contentOrLocal(heroCta(hero?.secondaryCta), localContent.hero.secondaryCta, 'secondary hero CTA'),
       },
       contact: {
-        description: landing?.contact?.description ?? localContent.contact.description,
-        whatsappMessage: landing?.contact?.whatsappMessage ?? localContent.contact.whatsappMessage,
+        description: contentOrLocal(nonEmptyText(landing?.contact?.description), localContent.contact.description, 'contact description'),
+        whatsappMessage: contentOrLocal(nonEmptyText(landing?.contact?.whatsappMessage), localContent.contact.whatsappMessage, 'contact WhatsApp message'),
       },
       sectionCopy: {
-        services: landing?.sectionCopy?.services?.eyebrow && landing.sectionCopy.services.title && landing.sectionCopy.services.mutedTitle ? landing.sectionCopy.services as SectionCopy : localContent.sectionCopy.services,
-        process: landing?.sectionCopy?.process?.eyebrow && landing.sectionCopy.process.title && landing.sectionCopy.process.mutedTitle ? landing.sectionCopy.process as SectionCopy : localContent.sectionCopy.process,
-        team: landing?.sectionCopy?.team?.eyebrow && landing.sectionCopy.team.title && landing.sectionCopy.team.mutedTitle ? landing.sectionCopy.team as SectionCopy : localContent.sectionCopy.team,
-        pricing: landing?.sectionCopy?.pricing?.eyebrow && landing.sectionCopy.pricing.title && landing.sectionCopy.pricing.mutedTitle ? landing.sectionCopy.pricing as SectionCopy : localContent.sectionCopy.pricing,
-        resources: landing?.sectionCopy?.resources?.eyebrow && landing.sectionCopy.resources.title && landing.sectionCopy.resources.mutedTitle ? landing.sectionCopy.resources as SectionCopy : localContent.sectionCopy.resources,
-        faq: landing?.sectionCopy?.faq?.eyebrow && landing.sectionCopy.faq.title && landing.sectionCopy.faq.mutedTitle ? landing.sectionCopy.faq as SectionCopy : localContent.sectionCopy.faq,
+        services: contentOrLocal(landing?.sectionCopy?.services?.eyebrow && landing.sectionCopy.services.title && landing.sectionCopy.services.mutedTitle ? landing.sectionCopy.services as SectionCopy : null, localContent.sectionCopy.services, 'services section copy'),
+        process: contentOrLocal(landing?.sectionCopy?.process?.eyebrow && landing.sectionCopy.process.title && landing.sectionCopy.process.mutedTitle ? landing.sectionCopy.process as SectionCopy : null, localContent.sectionCopy.process, 'process section copy'),
+        team: contentOrLocal(landing?.sectionCopy?.team?.eyebrow && landing.sectionCopy.team.title && landing.sectionCopy.team.mutedTitle ? landing.sectionCopy.team as SectionCopy : null, localContent.sectionCopy.team, 'team section copy'),
+        pricing: contentOrLocal(landing?.sectionCopy?.pricing?.eyebrow && landing.sectionCopy.pricing.title && landing.sectionCopy.pricing.mutedTitle ? landing.sectionCopy.pricing as SectionCopy : null, localContent.sectionCopy.pricing, 'pricing section copy'),
+        resources: contentOrLocal(landing?.sectionCopy?.resources?.eyebrow && landing.sectionCopy.resources.title && landing.sectionCopy.resources.mutedTitle ? landing.sectionCopy.resources as SectionCopy : null, localContent.sectionCopy.resources, 'resources section copy'),
+        faq: contentOrLocal(landing?.sectionCopy?.faq?.eyebrow && landing.sectionCopy.faq.title && landing.sectionCopy.faq.mutedTitle ? landing.sectionCopy.faq as SectionCopy : null, localContent.sectionCopy.faq, 'FAQ section copy'),
       },
     };
   } catch {
-    return localContent;
+    if (deployment.environment === 'local') return localContent;
+    throw new Error(`Sanity landing content fetch failed for the ${deployment.environment} deployment.`);
   }
 }
 
 export async function getPublishedResources(): Promise<PublishedResource[]> {
-  if (!sanityClient) return [];
+  if (!sanityClient) {
+    if (deployment.environment === 'local') return [];
+    throw new Error(`Sanity configuration is unavailable for the ${deployment.environment} deployment.`);
+  }
   try {
     const resources = await sanityClient.fetch<SanityResource[]>(resourcesQuery);
     return resources.filter(completeResource).map((resource) => ({
@@ -252,7 +262,8 @@ export async function getPublishedResources(): Promise<PublishedResource[]> {
       seo: { title: resource.seo.title!, description: resource.seo.description! },
       action: externalHttpsAction(resource.action),
     }));
-  } catch (error) {
-    throw error;
+  } catch {
+    if (deployment.environment === 'local') return [];
+    throw new Error(`Sanity resource fetch failed for the ${deployment.environment} deployment.`);
   }
 }
