@@ -16,7 +16,6 @@ export default defineConfig({
   title: 'TuNorte Content Studio',
   projectId,
   dataset,
-  basePath: '/admin',
   plugins: [structureTool({ structure })],
   document: {
     newDocumentOptions: (previous) => previous.filter((template) => template.templateId !== 'siteSettings' && template.templateId !== 'landingPage'),

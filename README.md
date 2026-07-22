@@ -42,8 +42,25 @@ La web pública sigue generándose estáticamente. El build raíz usa tres valor
 
 1. Copia `.env.example` a `.env` y añade el identificador, dataset y un token de lectura de un proyecto Sanity ya creado. No incluyas el token en documentación, control de versiones ni variables `PUBLIC_`.
 2. Crea o autentica ese proyecto por separado siguiendo la documentación de Sanity. Este repositorio no crea proyectos remotos ni contiene credenciales.
-3. En `studio/`, copia `.env.example` a `.env`, usa los mismos identificador y dataset como `SANITY_STUDIO_PROJECT_ID` y `SANITY_STUDIO_DATASET`, instala dependencias con `npm install` y ejecuta `npm run dev`. Estas dos variables del Studio tampoco son secretas.
-4. El Studio conserva `basePath: '/admin'`, pero no forma parte del build de Astro.
+3. En `studio/`, copia `.env.example` a `.env`, completa `SANITY_STUDIO_PROJECT_ID`, conserva `SANITY_STUDIO_DATASET=development`, instala dependencias con `npm install` y ejecuta `npm run dev`.
+4. Abre el Studio local en `http://localhost:3333/`. El Studio usa la raíz del host tanto en local como en el hosting gestionado.
+
+### Despliegue del Studio de producción
+
+El Studio de producción se aloja en Sanity, no en Cloudflare Pages, usa exclusivamente el dataset `production` y queda disponible en `https://tunorte.sanity.studio`. Los editores inician sesión mediante Sanity; el build del Studio no necesita `SANITY_API_TOKEN`.
+
+Desde `studio/`, usa primero el ensayo no mutante y revisa el destino antes de desplegar. El ensayo no modifica recursos remotos, pero vuelve a generar la salida local del Studio:
+
+```bash
+SANITY_STUDIO_DATASET=production npm run deploy:production:dry-run
+SANITY_STUDIO_DATASET=production npm run deploy:production
+```
+
+Ambos scripts fuerzan `DEPLOY_ENV=production` y `SANITY_STUDIO_BASEPATH=/`, por lo que la validación rechaza cualquier dataset distinto de `production` y el Studio se construye en la raíz. El despliegue real exige escribir exactamente `DEPLOY TUNORTE PRODUCTION` antes de ejecutar Sanity CLI y usa su sesión local. Un futuro despliegue desde CI necesitaría un `SANITY_AUTH_TOKEN` almacenado como secreto del proveedor, pero este repositorio no lo define.
+
+Sanity Free permite exactamente dos datasets públicos para este proyecto: `development` para el Studio local y previews de la web, y `production` para producción. No crees un dataset de staging ni un tercero.
+
+`sanity deploy` registra y gestiona automáticamente el origen `*.sanity.studio`; no hace falta añadir CORS para `https://tunorte.sanity.studio`. Sanity también permite por defecto `http://localhost:3333`, que sigue siendo necesario para el Studio local. Solo un Studio autoalojado o un puerto local distinto exigirían revisar CORS manualmente.
 
 Los recursos solo generan `/recursos` y `/recursos/[slug]` cuando Sanity está configurado y el registro publicado tiene slug global, fecha, extracto, portada con alt, SEO y Portable Text completos. Los marcadores locales de próximos recursos no generan páginas indexables.
 
@@ -85,7 +102,7 @@ Usa dos tokens de solo lectura distintos, aunque ambos pertenezcan al mismo proy
 6. Despliega primero una rama distinta de `main` y confirma que Pages usa `CF_PAGES_BRANCH` junto con el dataset `development`.
 7. Despliega `main` únicamente cuando el dataset `production` esté preparado.
 
-Sanity Studio necesita otro proyecto de Cloudflare Pages si se desea desplegarlo: configura ese proyecto con directorio raíz `studio`, comando `npm run build`, salida `dist` y las variables `DEPLOY_ENV`, `SANITY_STUDIO_PROJECT_ID` y `SANITY_STUDIO_DATASET` equivalentes para producción y preview. El Studio gestiona la autenticación de usuarios; no reutilices `SANITY_API_TOKEN` en su build.
+Cloudflare Pages aloja únicamente la web pública. El Studio de producción usa el hosting gestionado de Sanity descrito arriba, con ciclo de despliegue y autenticación independientes de Cloudflare.
 
 ## Configuración pendiente
 
