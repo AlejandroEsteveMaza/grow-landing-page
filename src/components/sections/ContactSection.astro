@@ -1,5 +1,6 @@
 ---
 import WhatsAppButton from '../global/WhatsAppButton.astro';
+import { deploymentEnvironment } from '../../lib/deployment';
 interface Props {
   whatsappNumber: string | null;
   whatsappMessage: string;
@@ -8,6 +9,7 @@ interface Props {
 }
 
 const { whatsappNumber, whatsappMessage, serviceOptions, description } = Astro.props;
+const isLocal = import.meta.env.DEV && deploymentEnvironment === 'local';
 ---
 
 <section id="contacto" aria-labelledby="contact-title">
@@ -27,18 +29,24 @@ const { whatsappNumber, whatsappMessage, serviceOptions, description } = Astro.p
       </div>
     </div>
 
-    <form class="reveal grid gap-5" data-contact-form aria-describedby="form-notice">
+    <form
+      class="reveal grid gap-5"
+      data-contact-form
+      aria-busy="false"
+      aria-describedby="form-notice"
+      aria-disabled={!isLocal}
+    >
       <div class="grid gap-5 sm:grid-cols-2">
         <div class="grid gap-2">
           <label class="text-xs font-semibold uppercase tracking-[0.12em] text-muted" for="name">Nombre</label>
           <input
             class="min-h-12 rounded-brand border border-border bg-surface px-4 py-3 text-sm text-foreground transition-colors placeholder:text-muted/70 hover:border-muted focus:border-primary"
             id="name"
-            name="name"
             type="text"
             autocomplete="name"
             minlength="2"
             required
+            disabled={!isLocal}
             placeholder="Tu nombre"
           />
         </div>
@@ -47,10 +55,10 @@ const { whatsappNumber, whatsappMessage, serviceOptions, description } = Astro.p
           <input
             class="min-h-12 rounded-brand border border-border bg-surface px-4 py-3 text-sm text-foreground transition-colors placeholder:text-muted/70 hover:border-muted focus:border-primary"
             id="email"
-            name="email"
             type="email"
             autocomplete="email"
             required
+            disabled={!isLocal}
             placeholder="tu@email.com"
           />
         </div>
@@ -61,8 +69,8 @@ const { whatsappNumber, whatsappMessage, serviceOptions, description } = Astro.p
         <select
           class="min-h-12 rounded-brand border border-border bg-surface px-4 py-3 text-sm text-foreground transition-colors hover:border-muted focus:border-primary"
           id="service"
-          name="service"
           required
+          disabled={!isLocal}
         >
           <option value="" disabled selected>Selecciona un servicio</option>
           {serviceOptions.map((option) => <option value={option}>{option}</option>)}
@@ -74,37 +82,67 @@ const { whatsappNumber, whatsappMessage, serviceOptions, description } = Astro.p
         <textarea
           class="min-h-32 resize-y rounded-brand border border-border bg-surface px-4 py-3 text-sm leading-6 text-foreground transition-colors placeholder:text-muted/70 hover:border-muted focus:border-primary"
           id="message"
-          name="message"
           minlength="20"
           required
+          disabled={!isLocal}
           placeholder="¿A qué te dedicas? ¿Qué quieres conseguir con tu web?"
         ></textarea>
       </div>
 
       <button
-        class="min-h-12 rounded-brand bg-primary px-6 py-3 text-sm font-bold text-white transition-[background-color,transform] hover:-translate-y-0.5 hover:bg-primary-hover focus-visible:-translate-y-0.5 focus-visible:bg-primary-hover"
-        type="button"
+        class="min-h-12 rounded-brand bg-primary px-6 py-3 text-sm font-bold text-white transition-[background-color,transform] hover:-translate-y-0.5 hover:bg-primary-hover focus-visible:-translate-y-0.5 focus-visible:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
+        type="submit"
+        disabled={!isLocal}
         data-form-button
       >
-        Revisar solicitud
+        {isLocal ? 'Simular envío' : 'Envío no disponible'}
       </button>
-      <p class="text-sm leading-6 text-muted" id="form-notice" tabindex="-1" data-form-notice>
-        El formulario todavía no envía ni almacena datos. El procesamiento real se conectará en una fase posterior.
+      <p
+        class="text-sm leading-6 text-muted"
+        id="form-notice"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        tabindex="-1"
+        data-form-notice
+      >
+        {isLocal
+          ? 'Modo local: puedes simular el envío. No se enviará ni almacenará ningún dato.'
+          : 'El envío no está habilitado en este entorno. No se enviará ni almacenará ningún dato.'}
       </p>
     </form>
   </div>
 </section>
 
-<script>
-  const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
-  const formButton = form?.querySelector<HTMLButtonElement>('[data-form-button]');
-  const formNotice = form?.querySelector<HTMLElement>('[data-form-notice]');
+{
+  isLocal && (
+    <script is:inline>
+      const form = document.querySelector('[data-contact-form]');
+      const formButton = form?.querySelector('[data-form-button]');
+      const formNotice = form?.querySelector('[data-form-notice]');
+      let isSubmitting = false;
 
-  formButton?.addEventListener('click', () => {
-    if (!form || !formNotice || !form.reportValidity()) return;
+      if (form instanceof HTMLFormElement && formButton instanceof HTMLButtonElement && formNotice instanceof HTMLElement) {
+        form.addEventListener('submit', (event) => {
+          event.preventDefault();
+          if (isSubmitting || !form.reportValidity()) return;
 
-    formNotice.textContent =
-      'Los campos son válidos, pero el envío aún no está habilitado. No se ha enviado ni almacenado ningún dato.';
-    formNotice.focus();
-  });
-</script>
+          isSubmitting = true;
+          form.setAttribute('aria-busy', 'true');
+          formButton.disabled = true;
+          formButton.textContent = 'Simulando...';
+          formNotice.textContent = 'Simulando el envío local...';
+
+          window.setTimeout(() => {
+            form.setAttribute('aria-busy', 'false');
+            formButton.disabled = false;
+            formButton.textContent = 'Simular envío';
+            formNotice.textContent = 'Simulación completada. No se ha enviado ni almacenado ningún dato.';
+            formNotice.focus();
+            isSubmitting = false;
+          }, 400);
+        });
+      }
+    </script>
+  )
+}
