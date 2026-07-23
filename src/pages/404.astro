@@ -1,0 +1,52 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Página no encontrada · TuNorte"
+  description="La página que buscas no existe o se ha movido."
+  noindex
+  omitCanonical
+>
+  <section
+    class="relative flex min-h-[80svh] items-center overflow-hidden border-b border-border px-6 pb-20 pt-36 md:px-10 md:pb-28 md:pt-44 lg:px-16"
+    aria-labelledby="error-title"
+  >
+    <p
+      class="pointer-events-none absolute -right-4 top-24 select-none font-display text-[clamp(10rem,35vw,32rem)] font-black leading-none tracking-[-0.09em] text-border/55"
+      aria-hidden="true"
+    >
+      404
+    </p>
+
+    <div class="relative z-10 mx-auto w-full max-w-site">
+      <p class="flex items-center gap-3 text-[0.68rem] font-semibold uppercase tracking-[0.25em] text-primary">
+        <span class="h-px w-9 bg-primary" aria-hidden="true"></span>
+        Error 404
+      </p>
+      <h1
+        class="mt-7 max-w-3xl font-display text-[clamp(3.35rem,8vw,7rem)] font-black leading-[0.91] tracking-[-0.055em] text-foreground"
+        id="error-title"
+      >
+        Esta página<br /><span class="text-muted">no existe.</span>
+      </h1>
+      <p class="mt-8 max-w-lg text-base leading-7 text-muted sm:text-lg sm:leading-8">
+        La dirección puede estar mal escrita o la página puede haberse movido. Puedes volver al inicio o consultar nuestros recursos.
+      </p>
+      <div class="mt-10 flex flex-wrap gap-3 sm:mt-12">
+        <a
+          class="inline-flex min-h-12 w-full items-center justify-center rounded-brand bg-primary px-7 py-3.5 text-sm font-bold text-white transition-[background-color,transform] hover:-translate-y-0.5 hover:bg-primary-hover focus-visible:-translate-y-0.5 focus-visible:bg-primary-hover sm:w-auto"
+          href="/"
+        >
+          Volver al inicio
+        </a>
+        <a
+          class="inline-flex min-h-12 w-full items-center justify-center rounded-brand border border-border bg-background/80 px-7 py-3.5 text-sm font-semibold text-foreground transition-[border-color,color,transform] hover:-translate-y-0.5 hover:border-primary hover:text-primary focus-visible:-translate-y-0.5 focus-visible:border-primary focus-visible:text-primary sm:w-auto"
+          href="/recursos/"
+        >
+          Ver recursos
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -9,6 +9,7 @@ import type { JsonLd, SeoMeta } from '../types/content';
 interface Props extends SeoMeta {
   siteName?: string;
   schemas?: readonly JsonLd[];
+  omitCanonical?: boolean;
 }
 
 const {
@@ -20,13 +21,14 @@ const {
   noindex = false,
   siteName = siteConfig.name,
   schemas = [],
+  omitCanonical = false,
 } = Astro.props;
 
 const isProduction = deploymentEnvironment === 'production';
 const robots = isProduction && !noindex ? 'index, follow' : 'noindex, nofollow';
 let canonical: URL | undefined;
 
-if (isProduction) {
+if (isProduction && !omitCanonical) {
   if (!Astro.site) throw new Error('Astro site must be configured to generate canonical URLs.');
 
   canonical = canonicalProp ? new URL(canonicalProp, Astro.site) : new URL(Astro.url.pathname, Astro.site);
