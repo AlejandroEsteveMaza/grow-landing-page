@@ -59,6 +59,10 @@
   backdrop-filter: blur(18px);
 }
 
+.site-header[data-menu-open="true"] {
+  transition-duration: 0s;
+}
+
 [data-menu-button] {
   display: none;
 }
