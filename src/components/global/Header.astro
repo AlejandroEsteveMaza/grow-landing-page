@@ -79,6 +79,7 @@ import { navigation } from '../../config/site';
     menu.hidden = !isOpen;
     menuButton.setAttribute('aria-expanded', String(isOpen));
     menuButton.setAttribute('aria-label', isOpen ? 'Cerrar menú' : 'Abrir menú');
+    if (header) header.dataset.menuOpen = String(isOpen && !desktopMedia.matches);
   };
 
   const syncMenuToViewport = (): void => {

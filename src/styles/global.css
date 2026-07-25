@@ -52,7 +52,8 @@
   }
 }
 
-.site-header[data-scrolled="true"] {
+.site-header[data-scrolled="true"],
+.site-header[data-menu-open="true"] {
   border-color: color-mix(in srgb, var(--color-border) 90%, transparent);
   background: color-mix(in srgb, var(--color-surface-strong) 94%, transparent);
   backdrop-filter: blur(18px);
