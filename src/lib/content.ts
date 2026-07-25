@@ -100,12 +100,7 @@ const localContent: LandingContent = {
   },
 };
 
-const priceLabel = (price: SanityOffer['price']): string | null => {
-  if (!price) return null;
-  if (price.display) return price.display;
-  if (typeof price.amount !== 'number' || !price.currency) return null;
-  return `${new Intl.NumberFormat('es', { style: 'currency', currency: price.currency }).format(price.amount)}${price.suffix ? ` ${price.suffix}` : ''}`;
-};
+const priceLabel = (publicPrice: SanityOffer['publicPrice']): string | null => publicPrice?.trim() || null;
 
 const completeResource = (resource: SanityResource): resource is Required<Pick<SanityResource, 'slug' | 'resourceType' | 'title' | 'excerpt' | 'publishedAt' | 'body' | 'seo'>> & SanityResource =>
   (resource.resourceType === 'article' || resource.resourceType === 'guide') &&
@@ -164,13 +159,13 @@ export async function getLandingContent(): Promise<LandingContent> {
     const standardOffers = offers.filter((offer) => offer.displayVariant !== 'maintenance');
     const maintenance = offers.find((offer) => offer.displayVariant === 'maintenance');
     const mappedPlans = standardOffers.flatMap((offer, index) => {
-      const price = priceLabel(offer.price);
-      return offer.title && offer.description && price && offer.note && offer.features?.length && offer.cta?.label
+      const price = priceLabel(offer.publicPrice);
+      return offer.title && offer.description && offer.note && offer.features?.length && offer.cta?.label
         ? [{ number: `Paquete ${String(index + 1).padStart(2, '0')}`, name: offer.title, description: offer.description, price, note: offer.note, features: offer.features, cta: offer.cta.label, featured: Boolean(offer.featured) }]
         : [];
     });
-    const mappedMaintenance = contentOrLocal(maintenance && maintenance.title && priceLabel(maintenance.price) && maintenance.included?.length && maintenance.excluded?.length
-      ? { name: maintenance.title, tagline: maintenance.description ?? '', price: priceLabel(maintenance.price)!, included: maintenance.included, excluded: maintenance.excluded }
+    const mappedMaintenance = contentOrLocal(maintenance && maintenance.title && maintenance.included?.length && maintenance.excluded?.length
+      ? { name: maintenance.title, tagline: maintenance.description ?? '', price: priceLabel(maintenance.publicPrice), included: maintenance.included, excluded: maintenance.excluded }
       : null, localContent.maintenancePlan, 'maintenance offer');
     const mappedServices = cmsServices.flatMap((service, index) => service.title && service.tier && service.description && service.features?.length
       ? [{ number: String(index + 1).padStart(2, '0'), tier: service.tier, title: service.title, description: service.description, features: service.features }]

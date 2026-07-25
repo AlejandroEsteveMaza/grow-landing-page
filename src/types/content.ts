@@ -43,7 +43,7 @@ export interface PricingPlan {
   number: string;
   name: string;
   description: string;
-  price: string;
+  price: string | null;
   note: string;
   features: readonly string[];
   cta: string;
@@ -53,7 +53,7 @@ export interface PricingPlan {
 export interface MaintenancePlan {
   name: string;
   tagline: string;
-  price: string;
+  price: string | null;
   included: readonly string[];
   excluded: readonly string[];
 }

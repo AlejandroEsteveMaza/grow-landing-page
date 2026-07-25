@@ -6,7 +6,7 @@ export const pricingPlans: readonly PricingPlan[] = [
     name: 'Landing Profesional',
     description:
       'Para profesionales que quieren empezar a tener presencia digital: una web que los represente y aparezca en Google desde el primer día.',
-    price: '$300',
+    price: null,
     note: 'Pago único · Sin cuotas ocultas',
     features: [
       'Alta de dominio (.com o .es)',
@@ -25,7 +25,7 @@ export const pricingPlans: readonly PricingPlan[] = [
     name: 'Web Corporativa Completa',
     description:
       'Para profesionales y clínicas que quieren una presencia digital sólida que refleje su identidad y posicione en Google.',
-    price: '$500',
+    price: null,
     note: 'Pago único · Dominio, hosting y SSL incluidos',
     features: [
       'Todo lo del Paquete 1 incluido',
@@ -43,7 +43,7 @@ export const pricingPlans: readonly PricingPlan[] = [
 export const maintenancePlan: MaintenancePlan = {
   name: 'Plan Web Segura',
   tagline: 'Tu web siempre activa',
-  price: '$20 / mes',
+  price: null,
   included: [
     'Hosting activo y SSL renovado',
     'Copias de seguridad periódicas automáticas',

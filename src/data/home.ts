@@ -61,8 +61,8 @@ export const processSteps: readonly ProcessStep[] = [
 ];
 
 export const contactServiceOptions = [
-  'Landing Profesional ($300)',
-  'Web Corporativa Completa ($500)',
-  'Plan Web Segura ($20/mes)',
+  'Landing Profesional',
+  'Web Corporativa Completa',
+  'Plan Web Segura',
   'Otro / Tengo dudas',
 ] as const;

@@ -13,7 +13,7 @@ export const servicesQuery = `*[_type == "service" && enabled == true] | order(o
 }`;
 
 export const offersQuery = `*[_type == "offer" && enabled == true] | order(order asc) {
-  _id, title, displayVariant, enabled, order, description, price, note, features, included, excluded, cta, featured
+  _id, title, displayVariant, enabled, order, description, publicPrice, note, features, included, excluded, cta, featured
 }`;
 
 export const teamQuery = `*[_type == "teamMember" && enabled == true] | order(order asc) {

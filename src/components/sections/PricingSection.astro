@@ -31,7 +31,7 @@ const { plans, maintenance, copy } = Astro.props;
             {maintenance.name} <span class="text-primary">— {maintenance.tagline}</span>
           </h3>
         </div>
-        <p class="font-display text-4xl font-black tracking-tight text-foreground">{maintenance.price}</p>
+        {maintenance.price && <p class="font-display text-4xl font-black tracking-tight text-foreground">{maintenance.price}</p>}
       </header>
       <div class="grid lg:grid-cols-2">
         <div class="p-7 sm:p-10 lg:border-r lg:border-border lg:px-12">
