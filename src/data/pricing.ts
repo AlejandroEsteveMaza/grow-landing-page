@@ -40,22 +40,24 @@ export const pricingPlans: readonly PricingPlan[] = [
   },
 ];
 
-export const maintenancePlan: MaintenancePlan = {
-  name: 'Plan Web Segura',
-  tagline: 'Tu web siempre activa',
-  price: null,
-  included: [
-    'Hosting activo y SSL renovado',
-    'Copias de seguridad periódicas automáticas',
-    'Actualizaciones de seguridad y plugins',
-    'Soporte ante caídas del servidor',
-    'Ajustes mensuales (máx. 30 min: textos, fotos)',
-  ],
-  excluded: [
-    'Creación de nuevas páginas adicionales',
-    'Rediseño visual o cambios estructurales',
-    'Subida masiva de contenidos',
-    'Estrategia de marketing o SEO continuo',
-    'Los trabajos adicionales se presupuestan de forma independiente',
-  ],
-};
+export const maintenancePlans: readonly MaintenancePlan[] = [
+  {
+    name: 'Plan Web Segura',
+    tagline: 'Tu web siempre activa',
+    price: null,
+    included: [
+      'Hosting activo y SSL renovado',
+      'Copias de seguridad periódicas automáticas',
+      'Actualizaciones de seguridad y plugins',
+      'Soporte ante caídas del servidor',
+      'Ajustes mensuales (máx. 30 min: textos, fotos)',
+    ],
+    excluded: [
+      'Creación de nuevas páginas adicionales',
+      'Rediseño visual o cambios estructurales',
+      'Subida masiva de contenidos',
+      'Estrategia de marketing o SEO continuo',
+      'Los trabajos adicionales se presupuestan de forma independiente',
+    ],
+  },
+];

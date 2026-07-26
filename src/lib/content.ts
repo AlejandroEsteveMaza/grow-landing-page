@@ -1,6 +1,6 @@
 import { faqItems } from '../data/faq';
 import { contactServiceOptions, heroStats, marqueeItems, processSteps } from '../data/home';
-import { maintenancePlan, pricingPlans } from '../data/pricing';
+import { maintenancePlans, pricingPlans } from '../data/pricing';
 import { articles, guides } from '../data/resources';
 import { services } from '../data/services';
 import { teamMembers } from '../data/team';
@@ -24,7 +24,7 @@ export interface LandingContent {
   processSteps: readonly ProcessStep[];
   teamMembers: readonly TeamMember[];
   pricingPlans: readonly PricingPlan[];
-  maintenancePlan: MaintenancePlan;
+  maintenancePlans: readonly MaintenancePlan[];
   articles: readonly ArticlePreview[];
   guides: readonly GuidePreview[];
   faqItems: readonly FaqItem[];
@@ -71,7 +71,7 @@ const localContent: LandingContent = {
   processSteps,
   teamMembers,
   pricingPlans,
-  maintenancePlan,
+  maintenancePlans,
   articles,
   guides,
   faqItems,
@@ -157,16 +157,16 @@ export async function getLandingContent(): Promise<LandingContent> {
       sanityClient.fetch<SanityResource[]>(resourcesQuery),
     ]);
     const standardOffers = offers.filter((offer) => offer.displayVariant !== 'maintenance');
-    const maintenance = offers.find((offer) => offer.displayVariant === 'maintenance');
+    const maintenanceOffers = offers.filter((offer) => offer.displayVariant === 'maintenance');
     const mappedPlans = standardOffers.flatMap((offer, index) => {
       const price = priceLabel(offer.publicPrice);
       return offer.title && offer.description && offer.note && offer.features?.length && offer.cta?.label
         ? [{ number: `Paquete ${String(index + 1).padStart(2, '0')}`, name: offer.title, description: offer.description, price, note: offer.note, features: offer.features, cta: offer.cta.label, featured: Boolean(offer.featured) }]
         : [];
     });
-    const mappedMaintenance = contentOrLocal(maintenance && maintenance.title && maintenance.included?.length && maintenance.excluded?.length
-      ? { name: maintenance.title, tagline: maintenance.description ?? '', price: priceLabel(maintenance.publicPrice), included: maintenance.included, excluded: maintenance.excluded }
-      : null, localContent.maintenancePlan, 'maintenance offer');
+    const mappedMaintenance = maintenanceOffers.flatMap((offer) => offer.title && offer.included?.length && offer.excluded?.length
+      ? [{ name: offer.title, tagline: offer.description ?? '', price: priceLabel(offer.publicPrice), included: offer.included, excluded: offer.excluded }]
+      : []);
     const mappedServices = cmsServices.flatMap((service, index) => service.title && service.tier && service.description && service.features?.length
       ? [{ number: String(index + 1).padStart(2, '0'), tier: service.tier, title: service.title, description: service.description, features: service.features }]
       : []);
@@ -208,7 +208,7 @@ export async function getLandingContent(): Promise<LandingContent> {
       processSteps: contentOrLocal(mappedProcessSteps.length ? mappedProcessSteps : null, localContent.processSteps, 'process steps'),
       teamMembers: contentOrLocal(mappedTeam.length ? mappedTeam : null, localContent.teamMembers, 'team'),
       pricingPlans: contentOrLocal(mappedPlans.length ? mappedPlans : null, localContent.pricingPlans, 'pricing offers'),
-      maintenancePlan: mappedMaintenance,
+      maintenancePlans: contentOrLocal(mappedMaintenance.length ? mappedMaintenance : null, localContent.maintenancePlans, 'maintenance offers'),
       faqItems: contentOrLocal(mappedFaq.length ? mappedFaq : null, localContent.faqItems, 'FAQ'),
       articles: deployment.environment === 'local' && !cmsArticles.length ? localContent.articles : cmsArticles,
       guides: deployment.environment === 'local' && !cmsGuides.length ? localContent.guides : cmsGuides,

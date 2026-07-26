@@ -1,0 +1,56 @@
+---
+import type { MaintenancePlan } from '../../types/content';
+
+interface Props {
+  plan: MaintenancePlan;
+}
+
+const { plan } = Astro.props;
+
+const featureGroups = [
+  {
+    title: '✓ Lo que sí incluye',
+    items: plan.included,
+    containerClass: 'p-7 sm:p-10 lg:border-r lg:border-border lg:px-12',
+    headingClass: 'text-xs font-bold uppercase tracking-[0.18em] text-primary',
+    marker: '✓',
+    markerClass: 'font-bold text-primary',
+  },
+  {
+    title: '× Lo que no incluye',
+    items: plan.excluded,
+    containerClass: 'border-t border-border p-7 sm:p-10 lg:border-t-0 lg:px-12',
+    headingClass: 'text-xs font-bold uppercase tracking-[0.18em] text-danger',
+    marker: '×',
+    markerClass: 'font-bold text-danger',
+  },
+] as const;
+---
+
+<article class="reveal reveal-interactive mt-6 overflow-hidden rounded-card border border-border transition-colors hover:border-primary">
+  <header class="flex flex-col gap-5 border-b border-border bg-surface p-7 sm:flex-row sm:items-end sm:justify-between sm:p-10 lg:px-12">
+    <div>
+      <p class="text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-primary">Servicio adicional</p>
+      <h3 class="mt-2 font-display text-2xl font-bold tracking-tight text-foreground">
+        {plan.name} <span class="text-primary">— {plan.tagline}</span>
+      </h3>
+    </div>
+    {plan.price && <p class="font-display text-4xl font-black tracking-tight text-foreground">{plan.price}</p>}
+  </header>
+  <div class="grid lg:grid-cols-2">
+    {
+      featureGroups.map((group) => (
+        <div class={group.containerClass}>
+          <h4 class={group.headingClass}>{group.title}</h4>
+          <ul class="mt-5">
+            {group.items.map((item) => (
+              <li class="flex gap-3 border-b border-border py-2.5 text-sm leading-6 text-subtle last:border-b-0">
+                <span class={group.markerClass} aria-hidden="true">{group.marker}</span><span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))
+    }
+  </div>
+</article>
