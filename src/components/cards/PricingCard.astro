@@ -21,7 +21,7 @@ const { plan } = Astro.props;
   <h3 class="mt-3 pr-20 font-display text-3xl font-bold tracking-tight text-foreground">{plan.name}</h3>
   <p class="mt-4 min-h-20 text-sm leading-6 text-muted">{plan.description}</p>
   {plan.price && <p class="mt-8 font-display text-6xl font-black tracking-[-0.06em] text-foreground">{plan.price}</p>}
-  <p class:list={[plan.price ? 'mt-2' : 'mt-8', 'text-xs text-muted']}>{plan.note}</p>
+  <p class:list={[plan.price ? 'mt-2' : 'mt-4', 'text-xs text-muted']}>{plan.note}</p>
   <div class="my-7 h-px bg-border"></div>
   <ul class="flex-1" aria-label={`Incluido en ${plan.name}`}>
     {
