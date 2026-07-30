@@ -1,4 +1,5 @@
 import type { HeroStat, ProcessStep } from '../types/content';
+import { CONTACT_SERVICE_OPTIONS } from '../../contact-workflow';
 
 export const heroStats: readonly HeroStat[] = [
   { value: '+6 años', label: 'Experiencia en marketing' },
@@ -60,9 +61,4 @@ export const processSteps: readonly ProcessStep[] = [
   },
 ];
 
-export const contactServiceOptions = [
-  'Landing Profesional',
-  'Web Corporativa Completa',
-  'Plan Web Segura',
-  'Otro / Tengo dudas',
-] as const;
+export const contactServiceOptions = CONTACT_SERVICE_OPTIONS;

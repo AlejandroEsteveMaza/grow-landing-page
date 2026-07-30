@@ -1,6 +1,7 @@
 ---
 import WhatsAppButton from '../global/WhatsAppButton.astro';
 import { deploymentEnvironment } from '../../lib/deployment';
+import { TURNSTILE_ACTION } from '../../../contact-workflow';
 interface Props {
   whatsappNumber: string | null;
   whatsappMessage: string;
@@ -10,6 +11,10 @@ interface Props {
 
 const { whatsappNumber, whatsappMessage, serviceOptions, description } = Astro.props;
 const isLocal = import.meta.env.DEV && deploymentEnvironment === 'local';
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY?.trim() ?? '';
+const hasValidSiteKey = /^[0-9]x[A-Za-z0-9_-]{20,}$/.test(turnstileSiteKey);
+const isRealSubmitEnabled = !isLocal && deploymentEnvironment !== 'local' && import.meta.env.PUBLIC_CONTACT_FORM_ENABLED === 'true' && hasValidSiteKey;
+const controlsEnabled = isLocal || isRealSubmitEnabled;
 ---
 
 <section id="contacto" aria-labelledby="contact-title">
@@ -32,9 +37,13 @@ const isLocal = import.meta.env.DEV && deploymentEnvironment === 'local';
     <form
       class="reveal grid gap-5"
       data-contact-form
+      data-turnstile-site-key={isRealSubmitEnabled ? turnstileSiteKey : undefined}
+      data-turnstile-action={isRealSubmitEnabled ? TURNSTILE_ACTION : undefined}
+      method="post"
+      action={isRealSubmitEnabled ? '/api/contact' : undefined}
       aria-busy="false"
-      aria-describedby="form-notice"
-      aria-disabled={!isLocal}
+      aria-describedby="privacy-submit-notice form-notice"
+      aria-disabled={!controlsEnabled}
     >
       <div class="grid gap-5 sm:grid-cols-2">
         <div class="grid gap-2">
@@ -42,11 +51,13 @@ const isLocal = import.meta.env.DEV && deploymentEnvironment === 'local';
           <input
             class="min-h-12 rounded-brand border border-border bg-surface px-4 py-3 text-sm text-foreground transition-colors placeholder:text-muted/70 hover:border-muted focus:border-primary"
             id="name"
+            name={isRealSubmitEnabled ? 'name' : undefined}
             type="text"
             autocomplete="name"
             minlength="2"
             required
-            disabled={!isLocal}
+            maxlength="80"
+            disabled={!controlsEnabled}
             placeholder="Tu nombre"
           />
         </div>
@@ -55,10 +66,12 @@ const isLocal = import.meta.env.DEV && deploymentEnvironment === 'local';
           <input
             class="min-h-12 rounded-brand border border-border bg-surface px-4 py-3 text-sm text-foreground transition-colors placeholder:text-muted/70 hover:border-muted focus:border-primary"
             id="email"
+            name={isRealSubmitEnabled ? 'email' : undefined}
             type="email"
             autocomplete="email"
             required
-            disabled={!isLocal}
+            maxlength="254"
+            disabled={!controlsEnabled}
             placeholder="tu@email.com"
           />
         </div>
@@ -69,8 +82,9 @@ const isLocal = import.meta.env.DEV && deploymentEnvironment === 'local';
         <select
           class="min-h-12 rounded-brand border border-border bg-surface px-4 py-3 text-sm text-foreground transition-colors hover:border-muted focus:border-primary"
           id="service"
+          name={isRealSubmitEnabled ? 'service' : undefined}
           required
-          disabled={!isLocal}
+          disabled={!controlsEnabled}
         >
           <option value="" disabled selected>Selecciona un servicio</option>
           {serviceOptions.map((option) => <option value={option}>{option}</option>)}
@@ -82,12 +96,34 @@ const isLocal = import.meta.env.DEV && deploymentEnvironment === 'local';
         <textarea
           class="min-h-32 resize-y rounded-brand border border-border bg-surface px-4 py-3 text-sm leading-6 text-foreground transition-colors placeholder:text-muted/70 hover:border-muted focus:border-primary"
           id="message"
+          name={isRealSubmitEnabled ? 'message' : undefined}
           minlength="20"
           required
-          disabled={!isLocal}
+          maxlength="2000"
+          disabled={!controlsEnabled}
           placeholder="¿A qué te dedicas? ¿Qué quieres conseguir con tu web?"
         ></textarea>
       </div>
+
+      {
+        isRealSubmitEnabled && (
+          <div class="grid gap-3 rounded-brand border border-border bg-surface-strong p-4">
+            <p class="text-sm leading-6 text-muted">
+              Para proteger este formulario del abuso, Cloudflare Turnstile realizará una verificación de seguridad. Al cargarla, Cloudflare podrá tratar datos técnicos según su política de privacidad.
+            </p>
+            <div data-turnstile-container aria-label="Verificación de seguridad"></div>
+          </div>
+        )
+      }
+
+      <div class:list={['absolute left-[-10000px] top-auto h-px w-px overflow-hidden', { hidden: !isRealSubmitEnabled }]} aria-hidden="true">
+        <label for="website">No completes este campo</label>
+        <input id="website" name={isRealSubmitEnabled ? 'website' : undefined} type="text" tabindex="-1" autocomplete="off" disabled={!isRealSubmitEnabled} />
+      </div>
+
+      <p class="rounded-brand border-l-4 border-primary bg-surface-strong px-4 py-3 text-sm leading-6 text-foreground" id="privacy-submit-notice">
+        Al enviar la consulta, confirmas que has leído la <a class="font-semibold text-primary underline decoration-primary/40 underline-offset-4 hover:decoration-primary" href="/privacidad/">Política de Privacidad</a> y consientes el tratamiento de tus datos para responderla y realizar su seguimiento.
+      </p>
 
       <button
         class="min-h-12 rounded-brand bg-primary px-6 py-3 text-sm font-bold text-white transition-[background-color,transform] hover:-translate-y-0.5 hover:bg-primary-hover focus-visible:-translate-y-0.5 focus-visible:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
@@ -95,7 +131,7 @@ const isLocal = import.meta.env.DEV && deploymentEnvironment === 'local';
         disabled={!isLocal}
         data-form-button
       >
-        {isLocal ? 'Simular envío' : 'Envío no disponible'}
+        {isLocal ? 'Simular envío' : isRealSubmitEnabled ? 'Enviar consulta' : 'Envío no disponible'}
       </button>
       <p
         class="text-sm leading-6 text-muted"
@@ -108,7 +144,9 @@ const isLocal = import.meta.env.DEV && deploymentEnvironment === 'local';
       >
         {isLocal
           ? 'Modo local: puedes simular el envío. No se enviará ni almacenará ningún dato.'
-          : 'El envío no está habilitado en este entorno. No se enviará ni almacenará ningún dato.'}
+          : isRealSubmitEnabled
+            ? 'Completa la verificación de seguridad para habilitar el envío.'
+            : 'El envío no está habilitado en este entorno. Puedes escribir a contacto@tunorteweb.com; los campos permanecen desactivados y no transmiten datos.'}
       </p>
     </form>
   </div>
@@ -117,32 +155,147 @@ const isLocal = import.meta.env.DEV && deploymentEnvironment === 'local';
 {
   isLocal && (
     <script is:inline>
-      const form = document.querySelector('[data-contact-form]');
-      const formButton = form?.querySelector('[data-form-button]');
-      const formNotice = form?.querySelector('[data-form-notice]');
-      let isSubmitting = false;
+      (() => {
+        const form = document.querySelector('[data-contact-form]');
+        const formButton = form?.querySelector('[data-form-button]');
+        const formNotice = form?.querySelector('[data-form-notice]');
+        let isSubmitting = false;
 
-      if (form instanceof HTMLFormElement && formButton instanceof HTMLButtonElement && formNotice instanceof HTMLElement) {
-        form.addEventListener('submit', (event) => {
-          event.preventDefault();
-          if (isSubmitting || !form.reportValidity()) return;
+        if (form instanceof HTMLFormElement && formButton instanceof HTMLButtonElement && formNotice instanceof HTMLElement) {
+          form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            if (isSubmitting || !form.reportValidity()) return;
 
-          isSubmitting = true;
-          form.setAttribute('aria-busy', 'true');
-          formButton.disabled = true;
-          formButton.textContent = 'Simulando...';
-          formNotice.textContent = 'Simulando el envío local...';
+            isSubmitting = true;
+            form.setAttribute('aria-busy', 'true');
+            formButton.disabled = true;
+            formButton.textContent = 'Simulando...';
+            formNotice.textContent = 'Simulando el envío local...';
 
-          window.setTimeout(() => {
-            form.setAttribute('aria-busy', 'false');
-            formButton.disabled = false;
-            formButton.textContent = 'Simular envío';
-            formNotice.textContent = 'Simulación completada. No se ha enviado ni almacenado ningún dato.';
-            formNotice.focus();
-            isSubmitting = false;
-          }, 400);
-        });
-      }
+            window.setTimeout(() => {
+              form.setAttribute('aria-busy', 'false');
+              formButton.disabled = false;
+              formButton.textContent = 'Simular envío';
+              formNotice.textContent = 'Simulación completada. No se ha enviado ni almacenado ningún dato.';
+              formNotice.focus();
+              isSubmitting = false;
+            }, 400);
+          });
+        }
+      })();
+    </script>
+  )
+}
+
+{
+  isRealSubmitEnabled && (
+    <script is:inline>
+      (() => {
+        const form = document.querySelector('[data-contact-form]');
+        const formButton = form?.querySelector('[data-form-button]');
+        const formNotice = form?.querySelector('[data-form-notice]');
+        const turnstileContainer = form?.querySelector('[data-turnstile-container]');
+        let turnstileToken = '';
+        let turnstileWidgetId;
+        let isSubmitting = false;
+
+        const setNotice = (message, focus = false) => {
+          if (!(formNotice instanceof HTMLElement)) return;
+          formNotice.textContent = message;
+          if (focus) formNotice.focus();
+        };
+
+        const disableSubmit = () => {
+          turnstileToken = '';
+          if (formButton instanceof HTMLButtonElement) formButton.disabled = true;
+        };
+
+        if (
+          form instanceof HTMLFormElement &&
+          formButton instanceof HTMLButtonElement &&
+          turnstileContainer instanceof HTMLElement
+        ) {
+          const script = document.createElement('script');
+          script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+          script.async = true;
+          script.defer = true;
+          script.addEventListener('load', () => {
+            if (!window.turnstile) {
+              setNotice('No se pudo cargar la verificación. Puedes escribir a contacto@tunorteweb.com.', true);
+              return;
+            }
+
+            turnstileWidgetId = window.turnstile.render(turnstileContainer, {
+              sitekey: form.dataset.turnstileSiteKey,
+              action: form.dataset.turnstileAction,
+              theme: 'auto',
+              size: 'flexible',
+              callback: (token) => {
+                turnstileToken = token;
+                formButton.disabled = false;
+                setNotice('Verificación completada. Ya puedes enviar la consulta.');
+              },
+              'error-callback': () => {
+                disableSubmit();
+                setNotice('No se pudo completar la verificación. Inténtalo de nuevo o escribe a contacto@tunorteweb.com.', true);
+              },
+              'expired-callback': () => {
+                disableSubmit();
+                setNotice('La verificación venció. Complétala de nuevo para enviar la consulta.', true);
+              },
+            });
+          });
+          script.addEventListener('error', () => {
+            disableSubmit();
+            setNotice('No se pudo cargar la verificación. Puedes escribir a contacto@tunorteweb.com.', true);
+          });
+          document.head.append(script);
+
+          form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            if (isSubmitting || !turnstileToken || !form.reportValidity()) return;
+
+            const field = (name) => form.elements.namedItem(name)?.value ?? '';
+            isSubmitting = true;
+            form.setAttribute('aria-busy', 'true');
+            formButton.disabled = true;
+            formButton.textContent = 'Enviando...';
+            setNotice('Enviando la consulta...');
+
+            const controller = new AbortController();
+            const timeout = window.setTimeout(() => controller.abort(), 12_000);
+            try {
+              const response = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  name: field('name'),
+                  email: field('email'),
+                  service: field('service'),
+                  message: field('message'),
+                  website: field('website'),
+                  turnstileToken,
+                }),
+                signal: controller.signal,
+              });
+              const result = await response.json().catch(() => null);
+              if (!response.ok || !result?.ok) throw new Error('Contact request rejected');
+
+              form.reset();
+              setNotice('Consulta enviada. Te responderemos lo antes posible.', true);
+            } catch {
+              setNotice('No se pudo enviar la consulta. Inténtalo de nuevo o escribe a contacto@tunorteweb.com.', true);
+            } finally {
+              window.clearTimeout(timeout);
+              form.setAttribute('aria-busy', 'false');
+              formButton.textContent = 'Enviar consulta';
+              disableSubmit();
+              if (window.turnstile && turnstileWidgetId !== undefined) window.turnstile.reset(turnstileWidgetId);
+              isSubmitting = false;
+            }
+          });
+        }
+      })();
     </script>
   )
 }

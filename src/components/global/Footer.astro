@@ -13,6 +13,11 @@ const currentYear = new Date().getFullYear();
     >
       TuNorte<span class="text-primary">.</span>
     </a>
-    <p class="text-sm text-muted">© {currentYear} TuNorte · Diseño web que te representa</p>
+    <div class="flex flex-col items-center gap-3 text-sm text-muted sm:items-end">
+      <p>© {currentYear} TuNorte · Diseño web que te representa</p>
+      <a class="inline-flex min-h-11 items-center underline decoration-border underline-offset-4 transition-colors hover:text-foreground focus-visible:text-foreground" href="/privacidad/">
+        Política de Privacidad
+      </a>
+    </div>
   </div>
 </footer>
