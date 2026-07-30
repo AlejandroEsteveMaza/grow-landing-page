@@ -5,7 +5,6 @@ import HeroSection from '../components/sections/HeroSection.astro';
 import PricingSection from '../components/sections/PricingSection.astro';
 import ProcessSection from '../components/sections/ProcessSection.astro';
 import ResourcesSection from '../components/sections/ResourcesSection.astro';
-import ServicesSection from '../components/sections/ServicesSection.astro';
 import TeamSection from '../components/sections/TeamSection.astro';
 import { getLandingContent } from '../lib/content';
 import BaseLayout from '../layouts/BaseLayout.astro';
@@ -42,10 +41,9 @@ const faqSchema: JsonLd = {
 
 <BaseLayout {...seo} siteName={content.site.name} schemas={[professionalServiceSchema, faqSchema]}>
   <HeroSection {...content.hero} />
-  <ServicesSection services={content.services} copy={content.sectionCopy.services} />
+  <PricingSection plans={content.pricingPlans} maintenancePlans={content.maintenancePlans} copy={content.sectionCopy.services} />
   <ProcessSection steps={content.processSteps} copy={content.sectionCopy.process} />
   <TeamSection members={content.teamMembers} copy={content.sectionCopy.team} />
-  <PricingSection plans={content.pricingPlans} maintenancePlans={content.maintenancePlans} copy={content.sectionCopy.pricing} />
   <ResourcesSection articles={content.articles} guides={content.guides} copy={content.sectionCopy.resources} />
   <FaqSection items={content.faqItems} copy={content.sectionCopy.faq} />
   <ContactSection

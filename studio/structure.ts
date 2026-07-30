@@ -7,7 +7,7 @@ export const structure: StructureResolver = (S) =>
       S.listItem().title('Ajustes del sitio').child(S.document().schemaType('siteSettings').documentId('siteSettings')),
       S.listItem().title('Portada').child(S.document().schemaType('landingPage').documentId('landingPage')),
       S.divider(),
-      S.documentTypeListItem('service').title('Servicios'),
+      S.documentTypeListItem('service').title('Servicios descriptivos — Legacy'),
       S.documentTypeListItem('offer').title('Ofertas'),
       S.documentTypeListItem('teamMember').title('Equipo'),
       S.documentTypeListItem('faq').title('Preguntas frecuentes'),
