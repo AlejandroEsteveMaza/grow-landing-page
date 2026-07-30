@@ -42,7 +42,7 @@ const controlsEnabled = isLocal || isRealSubmitEnabled;
       method="post"
       action={isRealSubmitEnabled ? '/api/contact' : undefined}
       aria-busy="false"
-      aria-describedby="privacy-submit-notice form-notice"
+      aria-describedby={isRealSubmitEnabled ? 'privacy-submit-notice form-notice' : 'form-notice'}
       aria-disabled={!controlsEnabled}
     >
       <div class="grid gap-5 sm:grid-cols-2">
@@ -107,9 +107,9 @@ const controlsEnabled = isLocal || isRealSubmitEnabled;
 
       {
         isRealSubmitEnabled && (
-          <div class="grid gap-3 rounded-brand border border-border bg-surface-strong p-4">
-            <p class="text-sm leading-6 text-muted">
-              Para proteger este formulario del abuso, Cloudflare Turnstile realizará una verificación de seguridad. Al cargarla, Cloudflare podrá tratar datos técnicos según su política de privacidad.
+          <div class="grid gap-2">
+            <p class="text-xs leading-5 text-muted" id="privacy-submit-notice">
+              Al enviar, consientes que usemos tus datos para responderte, según nuestra <a class="font-semibold text-primary underline decoration-primary/40 underline-offset-4 hover:decoration-primary" href="/privacidad/">Política de Privacidad</a>. Protegido por Cloudflare Turnstile.
             </p>
             <div data-turnstile-container aria-label="Verificación de seguridad"></div>
           </div>
@@ -120,10 +120,6 @@ const controlsEnabled = isLocal || isRealSubmitEnabled;
         <label for="website">No completes este campo</label>
         <input id="website" name={isRealSubmitEnabled ? 'website' : undefined} type="text" tabindex="-1" autocomplete="off" disabled={!isRealSubmitEnabled} />
       </div>
-
-      <p class="rounded-brand border-l-4 border-primary bg-surface-strong px-4 py-3 text-sm leading-6 text-foreground" id="privacy-submit-notice">
-        Al enviar la consulta, confirmas que has leído la <a class="font-semibold text-primary underline decoration-primary/40 underline-offset-4 hover:decoration-primary" href="/privacidad/">Política de Privacidad</a> y consientes el tratamiento de tus datos para responderla y realizar su seguimiento.
-      </p>
 
       <button
         class="min-h-12 rounded-brand bg-primary px-6 py-3 text-sm font-bold text-white transition-[background-color,transform] hover:-translate-y-0.5 hover:bg-primary-hover focus-visible:-translate-y-0.5 focus-visible:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
@@ -230,6 +226,7 @@ const controlsEnabled = isLocal || isRealSubmitEnabled;
               action: form.dataset.turnstileAction,
               theme: 'auto',
               size: 'flexible',
+              appearance: 'interaction-only',
               callback: (token) => {
                 turnstileToken = token;
                 formButton.disabled = false;
