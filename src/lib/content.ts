@@ -80,14 +80,14 @@ const localContent: LandingContent = {
     eyebrow: 'Agencia de diseño web especializada',
     titleLines: ['Tu web no es', 'decoración.', 'Es tu'],
     emphasizedLine: 'motor de ventas.',
-    description: 'Diseñamos webs a medida para profesionales que quieren una presencia digital que los represente, aparezca en Google y transmita confianza desde el primer clic.',
-    primaryCta: { label: 'Solicitar presupuesto', href: '#contacto' },
+    description: 'Diseñamos sitios web a medida para profesionales que quieren una presencia digital que los represente, aparezca en Google y transmita confianza desde el primer clic.',
+    primaryCta: { label: 'Solicitar cotización', href: '#contacto' },
     secondaryCta: { label: 'Ver servicios', href: '#servicios' },
     stats: heroStats,
     marqueeItems,
   },
   contact: {
-    description: 'Cuéntanos qué necesitas y te responderemos con un presupuesto personalizado. Sin rodeos y sin compromiso.',
+    description: 'Cuéntanos qué necesitas y te responderemos con una cotización personalizada. Sin rodeos y sin compromiso.',
     whatsappMessage: 'Hola, quiero información sobre sus servicios web.',
   },
   sectionCopy: {

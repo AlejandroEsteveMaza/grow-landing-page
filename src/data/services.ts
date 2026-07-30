@@ -12,7 +12,7 @@ export const services: readonly Service[] = [
       'Hasta 3 correos corporativos',
       '1 a 2 páginas 100% a medida',
       'Diseño responsive en todos los dispositivos',
-      'Panel autogestionable + formación',
+      'Panel para gestionar textos e imágenes + capacitación',
     ],
   },
   {

@@ -9,21 +9,21 @@ export const faqItems: readonly FaqItem[] = [
   {
     question: '¿Puedo actualizar mi web yo mismo después?',
     answer:
-      'Sí. Todos nuestros proyectos incluyen un panel autogestionable y una sesión de formación para que puedas editar textos, imágenes y contenidos sin depender de nosotros para cada cambio pequeño.',
+      'Sí. Todos nuestros proyectos incluyen un panel para que gestiones textos, imágenes y otros contenidos, además de una sesión de capacitación para que puedas hacer cambios pequeños sin depender de nosotros.',
   },
   {
-    question: '¿Garantizáis que mi web va a aparecer en Google?',
+    question: '¿TuNorte garantiza que mi web aparecerá en Google?',
     answer:
       'Garantizamos que tu web estará correctamente optimizada desde el inicio con SEO básico integrado: estructura, velocidad, etiquetas y contenido pensado para posicionarse. El resultado también depende del sector y la competencia.',
   },
   {
-    question: '¿Trabajáis con negocios fuera de Piura?',
+    question: '¿TuNorte ofrece servicios a negocios fuera de Piura?',
     answer:
-      'Sí. Trabajamos de forma 100% online con clientes en distintas ciudades de Perú y en España. El proceso se gestiona por videollamada, email y WhatsApp.',
+      'Sí. Trabajamos de forma 100% online con clientes en distintas ciudades de Perú y en España. El proceso se gestiona por videollamada, correo electrónico y WhatsApp.',
   },
   {
     question: '¿Qué pasa si necesito algo más adelante que no está en el paquete?',
     answer:
-      'Podemos presupuestar servicios adicionales por separado: nuevas páginas, rediseño, integración de sistemas, estrategia SEO continua o gestión de redes sociales. Siempre con transparencia y sin sorpresas.',
+      'Podemos cotizar servicios adicionales por separado: nuevas páginas, rediseño, integración de sistemas, estrategia SEO continua o gestión de redes sociales. Siempre con transparencia y sin sorpresas.',
   },
 ];

@@ -12,7 +12,7 @@ export const marqueeItems = [
   'SEO local',
   'Landing profesional',
   'Web corporativa',
-  'Google Business',
+  'Perfil de Empresa en Google',
   'Sistema de citas',
   'Integración IA',
   'Sector salud',
@@ -57,7 +57,7 @@ export const processSteps: readonly ProcessStep[] = [
   {
     number: '08',
     title: 'Optimización responsive',
-    description: 'Ajustamos cada detalle para móvil, tablet y ordenador.',
+    description: 'Ajustamos cada detalle para celulares, tablets y computadoras.',
   },
 ];
 
