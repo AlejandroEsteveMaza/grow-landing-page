@@ -17,14 +17,18 @@ const validSubmission = {
   website: '',
 };
 
-test('normalizes and accepts the bounded contact contract', () => {
-  const result = validateContactSubmission(validSubmission);
+test('normalizes and accepts the bounded contact contract with a CMS-derived service title', () => {
+  const result = validateContactSubmission({ ...validSubmission, service: '  Estrategia Digital para Clínicas  ' });
   assert.equal(result.ok, true);
-  if (result.ok) assert.equal(result.value.email, 'daniela@example.com');
+  if (result.ok) {
+    assert.equal(result.value.email, 'daniela@example.com');
+    assert.equal(result.value.service, 'Estrategia Digital para Clínicas');
+  }
 });
 
-test('rejects unknown services, honeypot values, and oversized messages', () => {
-  assert.equal(validateContactSubmission({ ...validSubmission, service: 'Inventado' }).ok, false);
+test('rejects empty or oversized services, honeypot values, and oversized messages', () => {
+  assert.equal(validateContactSubmission({ ...validSubmission, service: '  ' }).ok, false);
+  assert.equal(validateContactSubmission({ ...validSubmission, service: 'x'.repeat(81) }).ok, false);
   assert.equal(validateContactSubmission({ ...validSubmission, website: 'spam.example' }).ok, false);
   assert.equal(validateContactSubmission({ ...validSubmission, message: 'x'.repeat(2001) }).ok, false);
 });

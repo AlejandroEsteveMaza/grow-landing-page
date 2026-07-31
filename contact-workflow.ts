@@ -12,7 +12,7 @@ export const CONTACT_SERVICE_OPTIONS = [
 export interface ContactSubmission {
   name: string;
   email: string;
-  service: (typeof CONTACT_SERVICE_OPTIONS)[number];
+  service: string;
   message: string;
   turnstileToken: string;
   website: string;
@@ -28,7 +28,7 @@ export const validateContactSubmission = (input: unknown): ValidationResult => {
   const candidate = input as Record<string, unknown>;
   const name = typeof candidate.name === 'string' ? candidate.name.trim() : '';
   const email = typeof candidate.email === 'string' ? candidate.email.trim().toLowerCase() : '';
-  const service = typeof candidate.service === 'string' ? candidate.service : '';
+  const service = typeof candidate.service === 'string' ? candidate.service.trim() : '';
   const message = typeof candidate.message === 'string' ? candidate.message.trim() : '';
   const turnstileToken = typeof candidate.turnstileToken === 'string' ? candidate.turnstileToken : '';
   const website = typeof candidate.website === 'string' ? candidate.website : '';
@@ -40,7 +40,9 @@ export const validateContactSubmission = (input: unknown): ValidationResult => {
     email.length > 254 ||
     !EMAIL_PATTERN.test(email) ||
     /[\r\n]/.test(email) ||
-    !CONTACT_SERVICE_OPTIONS.includes(service as ContactSubmission['service']) ||
+    service.length < 1 ||
+    service.length > 80 ||
+    /[\r\n]/.test(service) ||
     message.length < 20 ||
     message.length > 2000 ||
     turnstileToken.length < 1 ||
@@ -52,6 +54,6 @@ export const validateContactSubmission = (input: unknown): ValidationResult => {
 
   return {
     ok: true,
-    value: { name, email, service: service as ContactSubmission['service'], message, turnstileToken, website },
+    value: { name, email, service, message, turnstileToken, website },
   };
 };
