@@ -11,7 +11,7 @@ const { items, copy } = Astro.props;
 
 <section class="border-b border-border bg-surface-strong" id="faq" aria-labelledby="faq-title">
   <div class="mx-auto w-full max-w-site px-6 py-20 md:px-10 md:py-28 lg:px-16 lg:py-32">
-    <p class="reveal flex items-center gap-3 text-[0.68rem] font-semibold uppercase tracking-[0.25em] text-primary">
+    <p class="reveal flex items-center gap-3 text-[0.68rem] font-semibold uppercase tracking-[0.25em] text-accent-text">
       <span class="h-px w-6 bg-primary" aria-hidden="true"></span>{copy.eyebrow}
     </p>
     <h2 class="reveal mt-4 font-display text-[clamp(2.5rem,5vw,4.25rem)] font-black leading-[0.96] tracking-[-0.045em] text-foreground" id="faq-title">
@@ -21,7 +21,7 @@ const { items, copy } = Astro.props;
       {
         items.map((item) => (
           <details class="faq-item group border-b border-border" data-faq-item>
-            <summary class="group/faq flex min-h-16 cursor-pointer list-none items-center justify-between gap-5 rounded-brand py-5 text-base font-semibold text-foreground transition-[background-color,color] duration-300 ease-[var(--ease-brand)] hover:bg-surface focus-visible:bg-surface focus-visible:text-primary-on-dark-surface sm:text-lg">
+            <summary class="group/faq flex min-h-16 cursor-pointer list-none items-center justify-between gap-5 rounded-brand py-5 text-base font-semibold text-foreground transition-[background-color,color] duration-300 ease-[var(--ease-brand)] hover:bg-surface focus-visible:bg-surface focus-visible:text-accent-text sm:text-lg">
               <span>{item.question}</span>
               <span class="relative flex size-9 shrink-0 items-center justify-center rounded-full border border-border text-primary transition-[background-color,border-color] duration-300 ease-[var(--ease-brand)] group-hover/faq:border-primary group-hover/faq:bg-primary/10 group-focus-visible/faq:border-primary group-focus-visible/faq:bg-primary/10" aria-hidden="true">
                 <span class="faq-icon-stroke faq-icon-horizontal absolute h-px w-3.5 bg-current"></span>

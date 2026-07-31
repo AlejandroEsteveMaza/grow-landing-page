@@ -13,7 +13,7 @@ const { articles, guides, copy } = Astro.props;
 
 <section class="border-b border-border" id="recursos" aria-labelledby="resources-title" data-resources-tabs>
   <div class="mx-auto w-full max-w-site px-6 py-20 md:px-10 md:py-28 lg:px-16 lg:py-32">
-    <p class="reveal flex items-center gap-3 text-[0.68rem] font-semibold uppercase tracking-[0.25em] text-primary">
+    <p class="reveal flex items-center gap-3 text-[0.68rem] font-semibold uppercase tracking-[0.25em] text-accent-text">
       <span class="h-px w-6 bg-primary" aria-hidden="true"></span>{copy.eyebrow}
     </p>
     <h2 class="reveal mt-4 font-display text-[clamp(2.5rem,5vw,4.25rem)] font-black leading-[0.96] tracking-[-0.045em] text-foreground" id="resources-title">
@@ -102,7 +102,7 @@ const { articles, guides, copy } = Astro.props;
         tab.setAttribute('aria-selected', String(isSelected));
         tab.tabIndex = isSelected ? 0 : -1;
         tab.classList.toggle('border-primary', isSelected);
-        tab.classList.toggle('text-primary', isSelected);
+        tab.classList.toggle('text-accent-text', isSelected);
         tab.classList.toggle('border-transparent', !isSelected);
         tab.classList.toggle('text-muted', !isSelected);
       });

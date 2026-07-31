@@ -18,7 +18,7 @@ const { service } = Astro.props;
   <p class="font-display text-6xl font-black leading-none text-border transition-colors group-hover:text-primary">
     {service.number}
   </p>
-  <p class="mt-7 text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-primary">{service.tier}</p>
+  <p class="mt-7 text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-accent-text">{service.tier}</p>
   <h3 class="mt-3 font-display text-3xl font-bold leading-tight tracking-tight text-foreground">{service.title}</h3>
   <p class="mt-5 max-w-lg text-[0.95rem] leading-7 text-muted">{service.description}</p>
   <ul class="mt-8" aria-label={`Incluido en ${service.title}`}>
@@ -32,7 +32,7 @@ const { service } = Astro.props;
     }
   </ul>
   <a
-    class="group/link mt-8 inline-flex min-h-11 items-center gap-2 text-sm font-bold text-foreground transition-colors hover:text-primary focus-visible:text-primary"
+    class="group/link mt-8 inline-flex min-h-11 items-center gap-2 text-sm font-bold text-foreground transition-colors hover:text-accent-text focus-visible:text-accent-text"
     href="#servicios"
   >
     Ver detalles y precio <span class="inline-block transition-transform duration-300 ease-out group-hover/link:translate-x-1 group-focus-visible/link:translate-x-1 motion-reduce:transition-none" aria-hidden="true">→</span>
