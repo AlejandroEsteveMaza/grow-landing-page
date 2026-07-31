@@ -19,9 +19,9 @@ const { eyebrow, title, description, meta, symbol, href } = Astro.props;
       </span>
     )
   }
-  <p class="text-[0.65rem] font-bold uppercase tracking-[0.22em] text-primary">{eyebrow}</p>
+  <p class="text-[0.65rem] font-bold uppercase tracking-[0.22em] text-accent-text">{eyebrow}</p>
   <h3 class="mt-3 font-display text-xl font-bold leading-snug tracking-tight text-foreground">
-    {href ? <a class="transition-colors hover:text-primary focus-visible:text-primary" href={href}>{title}</a> : title}
+    {href ? <a class="transition-colors hover:text-accent-text focus-visible:text-accent-text" href={href}>{title}</a> : title}
   </h3>
   <p class="mt-4 flex-1 text-sm leading-6 text-muted">{description}</p>
   <div class="mt-6 border-t border-border pt-4 text-xs text-muted">

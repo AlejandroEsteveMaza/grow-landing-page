@@ -43,7 +43,7 @@ export interface SanityOffer {
   enabled?: boolean;
   order?: number;
   description?: string;
-  price?: { amount?: number; currency?: string; suffix?: string; display?: string };
+  publicPrice?: string;
   note?: string;
   features?: string[];
   included?: string[];

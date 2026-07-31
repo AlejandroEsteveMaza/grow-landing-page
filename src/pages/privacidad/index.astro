@@ -1,0 +1,113 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { PRIVACY_POLICY_VERSION } from '../../../contact-workflow';
+
+const seo = {
+  title: 'Política de Privacidad · TuNorte',
+  description: 'Información sobre el tratamiento de datos personales al contactar con TuNorte.',
+};
+
+const sections = [
+  ['responsable', 'Responsable'],
+  ['datos', 'Datos y finalidad'],
+  ['conservacion', 'Conservación'],
+  ['proveedores', 'Proveedores'],
+  ['seguridad', 'Seguridad'],
+  ['derechos', 'Tus derechos'],
+] as const;
+---
+
+<BaseLayout {...seo}>
+  <article class="border-b border-border bg-surface-strong">
+    <header class="mx-auto w-full max-w-site px-6 pb-14 pt-20 md:px-10 md:pb-20 md:pt-28 lg:px-16">
+      <a class="text-sm font-semibold text-accent-text underline decoration-primary/40 underline-offset-4 hover:decoration-primary" href="/#contacto">Volver a TuNorte</a>
+      <p class="mt-10 flex items-center gap-3 text-[0.68rem] font-semibold uppercase tracking-[0.25em] text-accent-text">
+        <span class="h-px w-6 bg-primary" aria-hidden="true"></span>Privacidad
+      </p>
+      <h1 class="mt-4 max-w-4xl font-display text-[clamp(3rem,8vw,6.75rem)] font-black leading-[0.9] tracking-[-0.055em] text-foreground">
+        Tus datos,<br /><span class="text-muted">con un propósito claro.</span>
+      </h1>
+      <p class="mt-8 max-w-2xl text-lg leading-8 text-muted">
+        Esta política explica qué datos tratamos cuando contactas con TuNorte, para qué los usamos y cómo puedes ejercer tus derechos.
+      </p>
+      <p class="mt-5 text-xs font-semibold uppercase tracking-[0.12em] text-muted">Versión {PRIVACY_POLICY_VERSION} · 28 de julio de 2026</p>
+    </header>
+
+    <div class="mx-auto grid w-full max-w-site gap-12 border-t border-border px-6 py-14 md:px-10 md:py-20 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-20 lg:px-16">
+      <nav class="lg:sticky lg:top-8 lg:self-start" aria-label="Contenido de la política">
+        <p class="text-xs font-semibold uppercase tracking-[0.16em] text-muted">En esta página</p>
+        <ul class="mt-4 grid gap-1">
+          {sections.map(([id, label]) => (
+            <li><a class="flex min-h-11 items-center border-l border-border px-4 text-sm text-muted transition-colors hover:border-primary hover:text-foreground focus-visible:border-primary focus-visible:text-foreground" href={`#${id}`}>{label}</a></li>
+          ))}
+        </ul>
+      </nav>
+
+      <div class="privacy-sections grid max-w-3xl gap-14 text-base leading-7 text-muted md:gap-16">
+        <section class="scroll-mt-8" id="responsable" aria-labelledby="responsable-title">
+          <p class="text-xs font-semibold uppercase tracking-[0.16em] text-accent-text">Quién decide</p>
+          <h2 class="mt-2 font-display text-3xl font-black tracking-[-0.035em] text-foreground" id="responsable-title">Responsable del tratamiento</h2>
+          <p class="mt-5"><strong class="text-foreground">Daniela Alexandra Ortiz Paz</strong>, persona natural que desarrolla su actividad bajo el nombre comercial TuNorte.</p>
+          <dl class="mt-6 grid gap-px overflow-hidden rounded-brand border border-border bg-border sm:grid-cols-2">
+            <div class="bg-surface p-5"><dt class="text-xs font-semibold uppercase tracking-[0.12em]">Ubicación pública</dt><dd class="mt-2 text-foreground">Piura, Piura, Perú</dd></div>
+            <div class="bg-surface p-5"><dt class="text-xs font-semibold uppercase tracking-[0.12em]">Contacto y privacidad</dt><dd class="mt-2"><a class="text-accent-text underline underline-offset-4" href="mailto:contacto@tunorteweb.com">contacto@tunorteweb.com</a></dd></div>
+          </dl>
+          <p class="mt-5">La dirección completa se facilita de forma privada cuando sea administrativa, contractual o legalmente necesario. Esta forma de contacto público no pretende sustituir por sí sola las obligaciones de identificación o domicilio que puedan resultar aplicables.</p>
+        </section>
+
+        <section class="scroll-mt-8 border-t border-border pt-14 md:pt-16" id="datos" aria-labelledby="datos-title">
+          <p class="text-xs font-semibold uppercase tracking-[0.16em] text-accent-text">Qué y para qué</p>
+          <h2 class="mt-2 font-display text-3xl font-black tracking-[-0.035em] text-foreground" id="datos-title">Datos, finalidad y base</h2>
+          <p class="mt-5">El formulario solicita nombre, correo electrónico, servicio de interés y mensaje del proyecto. También puede generar datos técnicos mínimos para proteger el envío frente al abuso.</p>
+          <p class="mt-4">Usamos esos datos únicamente para responder tu consulta y realizar su seguimiento. No los usamos para boletines, publicidad, perfiles ni decisiones automatizadas.</p>
+          <p class="mt-4">La base para atender la consulta es tu consentimiento, expresado al pulsar el botón de envío después de mostrarte el aviso y esta política. Puedes retirarlo, sin afectar el tratamiento realizado previamente. Si contratas un servicio, los datos necesarios se tratarán para gestionar la relación y cumplir deberes legales, tributarios y administrativos aplicables.</p>
+          <p class="mt-4">Este tratamiento considera la Ley N.º 29733, Ley de Protección de Datos Personales, y su reglamento aprobado por el Decreto Supremo N.º 016-2024-JUS, sin afirmar que esta página sustituya las evaluaciones, registros o medidas que correspondan.</p>
+        </section>
+
+        <section class="scroll-mt-8 border-t border-border pt-14 md:pt-16" id="conservacion" aria-labelledby="conservacion-title">
+          <p class="text-xs font-semibold uppercase tracking-[0.16em] text-accent-text">Durante cuánto tiempo</p>
+          <h2 class="mt-2 font-display text-3xl font-black tracking-[-0.035em] text-foreground" id="conservacion-title">Conservación</h2>
+          <p class="mt-5">Si la consulta no se convierte en una relación contractual, la conservaremos como máximo durante seis meses desde el último contacto. Después se eliminará de forma segura o se anonimizará, salvo que exista una obligación legal documentada o una razón justificada para conservarla durante más tiempo.</p>
+          <p class="mt-4">Cuando exista contratación, conservaremos únicamente los datos necesarios durante la relación y los plazos exigidos para obligaciones legales, tributarias y administrativas.</p>
+        </section>
+
+        <section class="scroll-mt-8 border-t border-border pt-14 md:pt-16" id="proveedores" aria-labelledby="proveedores-title">
+          <p class="text-xs font-semibold uppercase tracking-[0.16em] text-accent-text">Quién presta apoyo técnico</p>
+          <h2 class="mt-2 font-display text-3xl font-black tracking-[-0.035em] text-foreground" id="proveedores-title">Proveedores y tratamiento internacional</h2>
+          <p class="mt-5">No mantenemos una base de datos propia para las consultas. Para operar el sitio y entregar los mensajes podemos utilizar Cloudflare Pages y Cloudflare Turnstile; Resend; Cloudflare Email Routing; y Google/Gmail. Estos proveedores pueden tratar datos técnicos o del mensaje en infraestructura situada fuera del Perú, de acuerdo con sus funciones y condiciones.</p>
+          <p class="mt-4">Antes de activar el formulario público deben revisarse y documentarse los registros, comunicaciones, contratos y salvaguardas que correspondan para el banco de datos y los flujos internacionales. La inclusión de un proveedor aquí no afirma que ese proceso administrativo ya se haya completado.</p>
+
+          <h3 class="mt-9 font-display text-xl font-black text-foreground">WhatsApp</h3>
+          <p class="mt-3">WhatsApp es un canal externo, independiente y voluntario operado por Meta. Si decides usarlo, Meta puede tratar tu número, nombre de perfil, contenido y datos asociados conforme a sus propias políticas. Siempre puedes elegir el formulario o escribir a <a class="text-accent-text underline underline-offset-4" href="mailto:contacto@tunorteweb.com">contacto@tunorteweb.com</a>.</p>
+        </section>
+
+        <section class="scroll-mt-8 border-t border-border pt-14 md:pt-16" id="seguridad" aria-labelledby="seguridad-title">
+          <p class="text-xs font-semibold uppercase tracking-[0.16em] text-accent-text">Protección y minimización</p>
+          <h2 class="mt-2 font-display text-3xl font-black tracking-[-0.035em] text-foreground" id="seguridad-title">Seguridad, Turnstile y cookies</h2>
+          <p class="mt-5">Aplicamos medidas razonables para limitar el acceso, evitar envíos automatizados y reducir los datos tratados. El formulario permanece inactivo si faltan sus controles de seguridad o su configuración autorizada.</p>
+          <p class="mt-4">Cloudflare Turnstile se carga únicamente cuando el envío real está habilitado y puede tratar señales técnicas para distinguir personas de automatizaciones. Mostramos un aviso antes de cargarlo.</p>
+          <p class="mt-4">TuNorte no utiliza analítica publicitaria, seguimiento de usuarios ni cookies no esenciales. La infraestructura de seguridad puede utilizar mecanismos estrictamente necesarios para prestar y proteger el servicio.</p>
+
+          <h3 class="mt-9 font-display text-xl font-black text-foreground">Personas adultas</h3>
+          <p class="mt-3">Los servicios y el formulario están dirigidos exclusivamente a personas mayores de 18 años. Si detectamos que recibimos inadvertidamente datos de una persona menor de edad, los eliminaremos.</p>
+        </section>
+
+        <section class="scroll-mt-8 border-t border-border pt-14 md:pt-16" id="derechos" aria-labelledby="derechos-title">
+          <p class="text-xs font-semibold uppercase tracking-[0.16em] text-accent-text">Tú mantienes el control</p>
+          <h2 class="mt-2 font-display text-3xl font-black tracking-[-0.035em] text-foreground" id="derechos-title">Derechos ARCO, revocación y reclamos</h2>
+          <p class="mt-5">Puedes solicitar acceso, rectificación, cancelación u oposición respecto de tus datos, así como revocar tu consentimiento, escribiendo a <a class="text-accent-text underline underline-offset-4" href="mailto:contacto@tunorteweb.com">contacto@tunorteweb.com</a>. Indica tu solicitud y la información necesaria para verificar tu identidad sin enviar datos excesivos por iniciativa propia.</p>
+          <p class="mt-4">Si consideras que tu solicitud no fue atendida adecuadamente, puedes revisar la vía de reclamación y los canales oficiales de la <a class="text-accent-text underline underline-offset-4" href="https://www.gob.pe/anpd" rel="noreferrer">Autoridad Nacional de Protección de Datos Personales (ANPD)</a>.</p>
+
+          <h3 class="mt-9 font-display text-xl font-black text-foreground">Actualizaciones</h3>
+          <p class="mt-3">Podemos actualizar esta política si cambia el servicio, el tratamiento o el marco aplicable. Publicaremos la nueva versión y su fecha en esta página. Cada envío exitoso queda asociado a la versión de la política y del aviso mostrados en ese momento.</p>
+        </section>
+      </div>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .privacy-sections :global(section[id]) {
+    scroll-margin-top: calc(var(--header-offset, 5.25rem) + 1rem);
+  }
+</style>

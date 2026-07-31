@@ -1,6 +1,6 @@
 import { faqItems } from '../data/faq';
 import { contactServiceOptions, heroStats, marqueeItems, processSteps } from '../data/home';
-import { maintenancePlan, pricingPlans } from '../data/pricing';
+import { maintenancePlans, pricingPlans } from '../data/pricing';
 import { articles, guides } from '../data/resources';
 import { services } from '../data/services';
 import { teamMembers } from '../data/team';
@@ -24,7 +24,7 @@ export interface LandingContent {
   processSteps: readonly ProcessStep[];
   teamMembers: readonly TeamMember[];
   pricingPlans: readonly PricingPlan[];
-  maintenancePlan: MaintenancePlan;
+  maintenancePlans: readonly MaintenancePlan[];
   articles: readonly ArticlePreview[];
   guides: readonly GuidePreview[];
   faqItems: readonly FaqItem[];
@@ -71,7 +71,7 @@ const localContent: LandingContent = {
   processSteps,
   teamMembers,
   pricingPlans,
-  maintenancePlan,
+  maintenancePlans,
   articles,
   guides,
   faqItems,
@@ -80,14 +80,14 @@ const localContent: LandingContent = {
     eyebrow: 'Agencia de diseño web especializada',
     titleLines: ['Tu web no es', 'decoración.', 'Es tu'],
     emphasizedLine: 'motor de ventas.',
-    description: 'Diseñamos webs a medida para profesionales que quieren una presencia digital que los represente, aparezca en Google y transmita confianza desde el primer clic.',
-    primaryCta: { label: 'Solicitar presupuesto', href: '#contacto' },
+    description: 'Diseñamos sitios web a medida para profesionales que quieren una presencia digital que los represente, aparezca en Google y transmita confianza desde el primer clic.',
+    primaryCta: { label: 'Solicitar cotización', href: '#contacto' },
     secondaryCta: { label: 'Ver servicios', href: '#servicios' },
     stats: heroStats,
     marqueeItems,
   },
   contact: {
-    description: 'Cuéntanos qué necesitas y te responderemos con un presupuesto personalizado. Sin rodeos y sin compromiso.',
+    description: 'Cuéntanos qué necesitas y te responderemos con una cotización personalizada. Sin rodeos y sin compromiso.',
     whatsappMessage: 'Hola, quiero información sobre sus servicios web.',
   },
   sectionCopy: {
@@ -100,12 +100,7 @@ const localContent: LandingContent = {
   },
 };
 
-const priceLabel = (price: SanityOffer['price']): string | null => {
-  if (!price) return null;
-  if (price.display) return price.display;
-  if (typeof price.amount !== 'number' || !price.currency) return null;
-  return `${new Intl.NumberFormat('es', { style: 'currency', currency: price.currency }).format(price.amount)}${price.suffix ? ` ${price.suffix}` : ''}`;
-};
+const priceLabel = (publicPrice: SanityOffer['publicPrice']): string | null => publicPrice?.trim() || null;
 
 const completeResource = (resource: SanityResource): resource is Required<Pick<SanityResource, 'slug' | 'resourceType' | 'title' | 'excerpt' | 'publishedAt' | 'body' | 'seo'>> & SanityResource =>
   (resource.resourceType === 'article' || resource.resourceType === 'guide') &&
@@ -162,16 +157,16 @@ export async function getLandingContent(): Promise<LandingContent> {
       sanityClient.fetch<SanityResource[]>(resourcesQuery),
     ]);
     const standardOffers = offers.filter((offer) => offer.displayVariant !== 'maintenance');
-    const maintenance = offers.find((offer) => offer.displayVariant === 'maintenance');
+    const maintenanceOffers = offers.filter((offer) => offer.displayVariant === 'maintenance');
     const mappedPlans = standardOffers.flatMap((offer, index) => {
-      const price = priceLabel(offer.price);
-      return offer.title && offer.description && price && offer.note && offer.features?.length && offer.cta?.label
+      const price = priceLabel(offer.publicPrice);
+      return offer.title && offer.description && offer.note && offer.features?.length && offer.cta?.label
         ? [{ number: `Paquete ${String(index + 1).padStart(2, '0')}`, name: offer.title, description: offer.description, price, note: offer.note, features: offer.features, cta: offer.cta.label, featured: Boolean(offer.featured) }]
         : [];
     });
-    const mappedMaintenance = contentOrLocal(maintenance && maintenance.title && priceLabel(maintenance.price) && maintenance.included?.length && maintenance.excluded?.length
-      ? { name: maintenance.title, tagline: maintenance.description ?? '', price: priceLabel(maintenance.price)!, included: maintenance.included, excluded: maintenance.excluded }
-      : null, localContent.maintenancePlan, 'maintenance offer');
+    const mappedMaintenance = maintenanceOffers.flatMap((offer) => offer.title && offer.included?.length && offer.excluded?.length
+      ? [{ name: offer.title, tagline: offer.description ?? '', price: priceLabel(offer.publicPrice), included: offer.included, excluded: offer.excluded }]
+      : []);
     const mappedServices = cmsServices.flatMap((service, index) => service.title && service.tier && service.description && service.features?.length
       ? [{ number: String(index + 1).padStart(2, '0'), tier: service.tier, title: service.title, description: service.description, features: service.features }]
       : []);
@@ -213,7 +208,7 @@ export async function getLandingContent(): Promise<LandingContent> {
       processSteps: contentOrLocal(mappedProcessSteps.length ? mappedProcessSteps : null, localContent.processSteps, 'process steps'),
       teamMembers: contentOrLocal(mappedTeam.length ? mappedTeam : null, localContent.teamMembers, 'team'),
       pricingPlans: contentOrLocal(mappedPlans.length ? mappedPlans : null, localContent.pricingPlans, 'pricing offers'),
-      maintenancePlan: mappedMaintenance,
+      maintenancePlans: contentOrLocal(mappedMaintenance.length ? mappedMaintenance : null, localContent.maintenancePlans, 'maintenance offers'),
       faqItems: contentOrLocal(mappedFaq.length ? mappedFaq : null, localContent.faqItems, 'FAQ'),
       articles: deployment.environment === 'local' && !cmsArticles.length ? localContent.articles : cmsArticles,
       guides: deployment.environment === 'local' && !cmsGuides.length ? localContent.guides : cmsGuides,

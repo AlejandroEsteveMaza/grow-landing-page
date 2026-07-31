@@ -1,4 +1,5 @@
 import type { HeroStat, ProcessStep } from '../types/content';
+import { CONTACT_SERVICE_OPTIONS } from '../../contact-workflow';
 
 export const heroStats: readonly HeroStat[] = [
   { value: '+6 años', label: 'Experiencia en marketing' },
@@ -11,7 +12,7 @@ export const marqueeItems = [
   'SEO local',
   'Landing profesional',
   'Web corporativa',
-  'Google Business',
+  'Perfil de Empresa en Google',
   'Sistema de citas',
   'Integración IA',
   'Sector salud',
@@ -56,13 +57,8 @@ export const processSteps: readonly ProcessStep[] = [
   {
     number: '08',
     title: 'Optimización responsive',
-    description: 'Ajustamos cada detalle para móvil, tablet y ordenador.',
+    description: 'Ajustamos cada detalle para celulares, tablets y computadoras.',
   },
 ];
 
-export const contactServiceOptions = [
-  'Landing Profesional ($300)',
-  'Web Corporativa Completa ($500)',
-  'Plan Web Segura ($20/mes)',
-  'Otro / Tengo dudas',
-] as const;
+export const contactServiceOptions = CONTACT_SERVICE_OPTIONS;
