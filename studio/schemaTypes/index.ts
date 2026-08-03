@@ -129,11 +129,11 @@ const landingPage = defineType({
 });
 
 const siteDeployment = defineType({
-  name: 'siteDeployment', title: 'Actualizar Producción', type: 'document',
+  name: 'siteDeployment', title: 'Actualizar sitio', type: 'document',
   fields: [
     defineField({ name: 'requestedAt', title: 'Última solicitud de actualización', type: 'datetime', readOnly: true }),
   ],
-  preview: { prepare: () => ({ title: 'Actualizar Producción' }) },
+  preview: { prepare: () => ({ title: 'Actualizar sitio' }) },
 });
 
 const service = defineType({ name: 'service', title: 'Servicios descriptivos — Legacy', type: 'document', fields: [defineField({ name: 'title', type: 'string', validation: requiredText(80) }), defineField({ name: 'tier', title: 'Etiqueta', type: 'string', validation: requiredText(40) }), defineField({ name: 'description', type: 'text', validation: requiredText(280) }), defineField({ name: 'features', type: 'array', of: [nonBlankStringMember()], validation: (rule) => rule.required().min(1).max(12) }), defineField({ name: 'enabled', type: 'boolean', initialValue: true, validation: (rule) => rule.required() }), defineField({ name: 'order', type: 'number', validation: (rule) => rule.integer().min(0) })] });

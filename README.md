@@ -60,11 +60,16 @@ Ambos scripts fuerzan `DEPLOY_ENV=production` y `SANITY_STUDIO_BASEPATH=/`, por 
 
 Sanity Free permite exactamente dos datasets públicos para este proyecto: `development` para el Studio local y previews de la web, y `production` para producción. No crees un dataset de staging ni un tercero.
 
-### Actualización de contenido en producción
+### Actualización de contenido por entorno
 
-Cuando termines de publicar un lote de contenido en el dataset `production`, abre **Actualizar Producción** en el Studio y confirma **Actualizar producción** una sola vez. La acción publica o actualiza el singleton `siteDeployment` con una marca de auditoría; no contacta Cloudflare ni contiene secretos.
+Cuando termines de publicar un lote de contenido, abre **Actualizar sitio** en el Studio y confirma una sola vez. La misma acción publica o actualiza el singleton fijo `siteDeployment` únicamente en el dataset activo; muestra `Preview` para `development` y `Producción` para `production`, y queda deshabilitada para cualquier otro dataset. La acción no selecciona ni contacta Cloudflare y no contiene secretos.
 
-Configura después un webhook de Sanity para el dataset `production`, solo documentos publicados, con el filtro `_type == "siteDeployment" && _id == "siteDeployment"`. Debe enviar un `POST` al Cloudflare Pages Deploy Hook. La URL completa del hook contiene el secreto: configúrala únicamente en el dashboard de Sanity, nunca en Git, código, variables de navegador ni documentación.
+Configura dos circuitos aislados en los dashboards:
+
+- Webhook A de Sanity: dataset `production`, solo documentos publicados, eventos de creación y actualización, filtro `_type == "siteDeployment" && _id == "siteDeployment"`. Debe enviar un `POST` a un Cloudflare Pages Deploy Hook cuyo destino sea la rama `main`/Production.
+- Webhook B de Sanity: dataset `development`, solo documentos publicados, eventos de creación y actualización, el mismo filtro `_type == "siteDeployment" && _id == "siteDeployment"`. Debe enviar un `POST` a otro Cloudflare Pages Deploy Hook cuyo destino sea la rama `develop`/Preview.
+
+El dataset activo determina cuál de los dos webhooks recibe la mutación. Nunca reutilices el hook de producción para `development`. Las URL completas de ambos hooks contienen secretos: configúralas únicamente en el dashboard de Sanity y nunca las guardes en Git, código, variables de navegador ni documentación.
 
 `sanity deploy` registra y gestiona automáticamente el origen `*.sanity.studio`; no hace falta añadir CORS para `https://tunorte.sanity.studio`. Sanity también permite por defecto `http://localhost:3333`, que sigue siendo necesario para el Studio local. Solo un Studio autoalojado o un puerto local distinto exigirían revisar CORS manualmente.
 
