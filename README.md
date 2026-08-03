@@ -60,6 +60,12 @@ Ambos scripts fuerzan `DEPLOY_ENV=production` y `SANITY_STUDIO_BASEPATH=/`, por 
 
 Sanity Free permite exactamente dos datasets públicos para este proyecto: `development` para el Studio local y previews de la web, y `production` para producción. No crees un dataset de staging ni un tercero.
 
+### Actualización de contenido en producción
+
+Cuando termines de publicar un lote de contenido en el dataset `production`, abre **Actualizar Producción** en el Studio y confirma **Actualizar producción** una sola vez. La acción publica o actualiza el singleton `siteDeployment` con una marca de auditoría; no contacta Cloudflare ni contiene secretos.
+
+Configura después un webhook de Sanity para el dataset `production`, solo documentos publicados, con el filtro `_type == "siteDeployment" && _id == "siteDeployment"`. Debe enviar un `POST` al Cloudflare Pages Deploy Hook. La URL completa del hook contiene el secreto: configúrala únicamente en el dashboard de Sanity, nunca en Git, código, variables de navegador ni documentación.
+
 `sanity deploy` registra y gestiona automáticamente el origen `*.sanity.studio`; no hace falta añadir CORS para `https://tunorte.sanity.studio`. Sanity también permite por defecto `http://localhost:3333`, que sigue siendo necesario para el Studio local. Solo un Studio autoalojado o un puerto local distinto exigirían revisar CORS manualmente.
 
 Los recursos solo generan `/recursos` y `/recursos/[slug]` cuando Sanity está configurado y el registro publicado tiene slug global, fecha, extracto, portada con alt, SEO y Portable Text completos. Los marcadores locales de próximos recursos no generan páginas indexables.
