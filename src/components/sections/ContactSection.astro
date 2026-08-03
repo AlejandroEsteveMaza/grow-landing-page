@@ -1,7 +1,7 @@
 ---
 import WhatsAppButton from '../global/WhatsAppButton.astro';
 import { deploymentEnvironment } from '../../lib/deployment';
-import { TURNSTILE_ACTION } from '../../../contact-workflow';
+import { CONTACT_BROWSER_TIMEOUT_MS, TURNSTILE_ACTION } from '../../../contact-workflow';
 interface Props {
   whatsappNumber: string | null;
   whatsappMessage: string;
@@ -39,6 +39,7 @@ const controlsEnabled = isLocal || isRealSubmitEnabled;
       data-contact-form
       data-turnstile-site-key={isRealSubmitEnabled ? turnstileSiteKey : undefined}
       data-turnstile-action={isRealSubmitEnabled ? TURNSTILE_ACTION : undefined}
+      data-request-timeout={isRealSubmitEnabled ? CONTACT_BROWSER_TIMEOUT_MS : undefined}
       method="post"
       action={isRealSubmitEnabled ? '/api/contact' : undefined}
       aria-busy="false"
@@ -194,6 +195,8 @@ const controlsEnabled = isLocal || isRealSubmitEnabled;
         let turnstileToken = '';
         let turnstileWidgetId;
         let isSubmitting = false;
+        let submissionId = '';
+        let submittedAt = '';
 
         const setNotice = (message, focus = false) => {
           if (!(formNotice instanceof HTMLElement)) return;
@@ -248,11 +251,20 @@ const controlsEnabled = isLocal || isRealSubmitEnabled;
           });
           document.head.append(script);
 
+          form.addEventListener('input', () => {
+            submissionId = '';
+            submittedAt = '';
+          });
+
           form.addEventListener('submit', async (event) => {
             event.preventDefault();
             if (isSubmitting || !turnstileToken || !form.reportValidity()) return;
 
             const field = (name) => form.elements.namedItem(name)?.value ?? '';
+            if (!submissionId) {
+              submissionId = crypto.randomUUID();
+              submittedAt = new Date().toISOString();
+            }
             isSubmitting = true;
             form.setAttribute('aria-busy', 'true');
             formButton.disabled = true;
@@ -260,12 +272,14 @@ const controlsEnabled = isLocal || isRealSubmitEnabled;
             setNotice('Enviando la consulta...');
 
             const controller = new AbortController();
-            const timeout = window.setTimeout(() => controller.abort(), 12_000);
+            const timeout = window.setTimeout(() => controller.abort(), Number(form.dataset.requestTimeout));
             try {
               const response = await fetch('/api/contact', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
+                  submissionId,
+                  submittedAt,
                   name: field('name'),
                   email: field('email'),
                   service: field('service'),
@@ -279,6 +293,8 @@ const controlsEnabled = isLocal || isRealSubmitEnabled;
               if (!response.ok || !result?.ok) throw new Error('Contact request rejected');
 
               form.reset();
+              submissionId = '';
+              submittedAt = '';
               setNotice('Consulta enviada. Te responderemos lo antes posible.', true);
             } catch {
               setNotice('No se pudo enviar la consulta. Inténtalo de nuevo o escribe a contacto@tunorteweb.com.', true);

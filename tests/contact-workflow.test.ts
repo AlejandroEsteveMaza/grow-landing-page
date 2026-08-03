@@ -2,13 +2,18 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
   CONTACT_SERVICE_OPTIONS,
+  CONTACT_BROWSER_TIMEOUT_MS,
   PRIVACY_NOTICE_VERSION,
   PRIVACY_POLICY_VERSION,
+  RESEND_TIMEOUT_MS,
+  TURNSTILE_TIMEOUT_MS,
   validateContactSubmission,
 } from '../contact-workflow.ts';
 import { onRequest } from '../functions/api/contact.ts';
 
 const validSubmission = {
+  submissionId: '8f4d4c45-87a1-4c57-9ac0-5bdb48658d9a',
+  submittedAt: '2026-07-31T12:00:00.000Z',
   name: 'Daniela Ortiz',
   email: 'DANIELA@example.com',
   service: CONTACT_SERVICE_OPTIONS[0],
@@ -31,6 +36,12 @@ test('rejects empty or oversized services, honeypot values, and oversized messag
   assert.equal(validateContactSubmission({ ...validSubmission, service: 'x'.repeat(81) }).ok, false);
   assert.equal(validateContactSubmission({ ...validSubmission, website: 'spam.example' }).ok, false);
   assert.equal(validateContactSubmission({ ...validSubmission, message: 'x'.repeat(2001) }).ok, false);
+  assert.equal(validateContactSubmission({ ...validSubmission, submissionId: 'not-a-uuid' }).ok, false);
+  assert.equal(validateContactSubmission({ ...validSubmission, submittedAt: 'not-a-timestamp' }).ok, false);
+});
+
+test('browser timeout exceeds the bounded external request path', () => {
+  assert.ok(CONTACT_BROWSER_TIMEOUT_MS > TURNSTILE_TIMEOUT_MS + RESEND_TIMEOUT_MS);
 });
 
 test('endpoint fails closed before any external request when server activation is absent', async () => {
@@ -55,7 +66,7 @@ test('endpoint fails closed before any external request when server activation i
   }
 });
 
-test('enabled endpoint validates Turnstile and sends versioned evidence through mocked fetches', async () => {
+test('unchanged endpoint retries reuse stable external idempotency and email payloads', async () => {
   const originalFetch = globalThis.fetch;
   const requests: Request[] = [];
   globalThis.fetch = async (input, init) => {
@@ -69,7 +80,7 @@ test('enabled endpoint validates Turnstile and sends versioned evidence through 
   };
 
   try {
-    const response = await onRequest({
+    const send = () => onRequest({
       request: new Request('https://tunorteweb.com/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Origin: 'https://tunorteweb.com' },
@@ -84,13 +95,26 @@ test('enabled endpoint validates Turnstile and sends versioned evidence through 
         CONTACT_TO_EMAIL: 'private-destination@example.com',
       },
     });
+    const response = await send();
+    const retryResponse = await send();
 
     assert.equal(response.status, 200);
-    assert.equal(requests.length, 2);
+    assert.equal(retryResponse.status, 200);
+    assert.equal(requests.length, 4);
     assert.equal(requests[0]?.url, 'https://challenges.cloudflare.com/turnstile/v0/siteverify');
     assert.equal(requests[1]?.url, 'https://api.resend.com/emails');
+    assert.equal(requests[2]?.url, 'https://challenges.cloudflare.com/turnstile/v0/siteverify');
+    assert.equal(requests[3]?.url, 'https://api.resend.com/emails');
+    assert.equal(requests[1]?.headers.get('Idempotency-Key'), `contact-form/${validSubmission.submissionId}`);
+    assert.equal(requests[3]?.headers.get('Idempotency-Key'), requests[1]?.headers.get('Idempotency-Key'));
+
+    const firstTurnstileBody = await requests[0]?.formData();
+    const retryTurnstileBody = await requests[2]?.formData();
+    assert.equal(firstTurnstileBody?.get('idempotency_key'), validSubmission.submissionId);
+    assert.equal(retryTurnstileBody?.get('idempotency_key'), validSubmission.submissionId);
 
     const emailRequest = (await requests[1]?.json()) as { text?: string };
+    assert.deepEqual(await requests[3]?.json(), emailRequest);
     assert.match(emailRequest.text ?? '', new RegExp(`Versión de la política de privacidad: ${PRIVACY_POLICY_VERSION}`));
     assert.match(emailRequest.text ?? '', new RegExp(`Versión del aviso de envío: ${PRIVACY_NOTICE_VERSION.replace('.', '\\.')}`));
     assert.match(emailRequest.text ?? '', /Fecha y hora UTC: \d{4}-\d{2}-\d{2}T/);

@@ -42,7 +42,7 @@ const bodyHtml = toHTML(resource.body as Parameters<typeof toHTML>[0], {
 <BaseLayout {...seo} schemas={[articleSchema]}>
   <article class="px-6 pb-20 pt-36 md:px-10 md:pb-28 md:pt-44 lg:px-16 lg:pb-32">
     <div class="mx-auto w-full max-w-3xl">
-      <a class="inline-flex min-h-11 items-center text-sm font-semibold text-muted transition-colors hover:text-accent-text focus-visible:text-accent-text" href="/recursos/">← Volver a recursos</a>
+      <a class="inline-flex min-h-11 items-center text-sm font-semibold text-muted transition-colors hover:text-accent-text focus-visible:text-accent-text" href="/#recursos">← Volver a recursos</a>
       <p class="mt-6 text-[0.68rem] font-semibold uppercase tracking-[0.25em] text-accent-text">{resource.category}</p>
       <h1 class="mt-4 font-display text-[clamp(2.5rem,5vw,4.25rem)] font-black leading-[0.96] tracking-[-0.045em] text-foreground">{resource.title}</h1>
       {resource.coverImageUrl && <img class="mt-10 aspect-[16/9] w-full rounded-card object-cover" src={resource.coverImageUrl} alt={resource.coverImageAlt ?? ''} loading="eager" />}

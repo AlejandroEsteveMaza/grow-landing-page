@@ -1,5 +1,5 @@
 export const landingPageQuery = `*[_type == "landingPage" && _id == "landingPage"][0] {
-  hero, sectionCopy, processSteps, contact
+  hero, sectionCopy { services, process, team, resources, faq }, processSteps, contact
 }`;
 
 export const siteSettingsQuery = `*[_type == "siteSettings" && _id == "siteSettings"][0] {
@@ -13,7 +13,7 @@ export const servicesQuery = `*[_type == "service" && enabled == true] | order(o
 }`;
 
 export const offersQuery = `*[_type == "offer" && enabled == true] | order(order asc) {
-  _id, title, displayVariant, enabled, order, description, publicPrice, note, features, included, excluded, cta, featured
+  _id, title, displayVariant, enabled, order, description, publicPrice, note, features, included, excluded, cta { label }, featured
 }`;
 
 export const teamQuery = `*[_type == "teamMember" && enabled == true] | order(order asc) {

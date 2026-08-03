@@ -1,7 +1,9 @@
 import {
   PRIVACY_NOTICE_VERSION,
   PRIVACY_POLICY_VERSION,
+  RESEND_TIMEOUT_MS,
   TURNSTILE_ACTION,
+  TURNSTILE_TIMEOUT_MS,
   validateContactSubmission,
 } from '../../contact-workflow.ts';
 
@@ -48,7 +50,7 @@ const verifyTurnstile = async (secret: string, token: string, hostname: string, 
   if (remoteIp) body.set('remoteip', remoteIp);
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 8_000);
+  const timeout = setTimeout(() => controller.abort(), TURNSTILE_TIMEOUT_MS);
 
   try {
     const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
@@ -110,17 +112,15 @@ export const onRequest = async ({ request, env }: PagesContext): Promise<Respons
   const submission = validateContactSubmission(body);
   if (!submission.ok) return jsonResponse(400, 'Revisa los datos de la consulta.');
 
-  const idempotencyKey = crypto.randomUUID();
   const turnstileValid = await verifyTurnstile(
     TURNSTILE_SECRET_KEY,
     submission.value.turnstileToken,
     hostname,
     request.headers.get('CF-Connecting-IP'),
-    idempotencyKey,
+    submission.value.submissionId,
   );
   if (!turnstileValid) return jsonResponse(400, 'No se pudo verificar la consulta. Inténtalo de nuevo.');
 
-  const receivedAt = new Date().toISOString();
   const text = [
     'Nueva consulta desde tunorteweb.com',
     '',
@@ -132,29 +132,37 @@ export const onRequest = async ({ request, env }: PagesContext): Promise<Respons
     submission.value.message,
     '',
     'Evidencia de la solicitud:',
-    `Fecha y hora UTC: ${receivedAt}`,
+    `Fecha y hora UTC: ${submission.value.submittedAt}`,
     `Versión de la política de privacidad: ${PRIVACY_POLICY_VERSION}`,
     `Versión del aviso de envío: ${PRIVACY_NOTICE_VERSION}`,
     'Acción afirmativa: envío de la consulta mediante el botón del formulario.',
   ].join('\n');
 
   try {
-    const resendResponse = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${RESEND_API_KEY}`,
-        'Content-Type': 'application/json',
-        'Idempotency-Key': idempotencyKey,
-      },
-      body: JSON.stringify({
-        from: CONTACT_FROM_EMAIL,
-        to: [CONTACT_TO_EMAIL],
-        subject: `Nueva consulta: ${submission.value.service}`,
-        text,
-      }),
-    });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), RESEND_TIMEOUT_MS);
 
-    if (!resendResponse.ok) return jsonResponse(502, 'No se pudo enviar la consulta. Inténtalo más tarde.');
+    try {
+      const resendResponse = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${RESEND_API_KEY}`,
+          'Content-Type': 'application/json',
+          'Idempotency-Key': `contact-form/${submission.value.submissionId}`,
+        },
+        body: JSON.stringify({
+          from: CONTACT_FROM_EMAIL,
+          to: [CONTACT_TO_EMAIL],
+          subject: `Nueva consulta: ${submission.value.service}`,
+          text,
+        }),
+        signal: controller.signal,
+      });
+
+      if (!resendResponse.ok) return jsonResponse(502, 'No se pudo enviar la consulta. Inténtalo más tarde.');
+    } finally {
+      clearTimeout(timeout);
+    }
   } catch {
     return jsonResponse(502, 'No se pudo enviar la consulta. Inténtalo más tarde.');
   }
