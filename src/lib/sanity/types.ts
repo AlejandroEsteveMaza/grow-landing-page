@@ -14,7 +14,7 @@ export interface SanityLandingPage {
     stats?: Array<{ value?: string; label?: string }>;
     marqueeItems?: string[];
   };
-  sectionCopy?: Record<string, { eyebrow?: string; title?: string; mutedTitle?: string }>;
+  sectionCopy?: Partial<Record<'services' | 'process' | 'team' | 'resources' | 'faq', { eyebrow?: string; title?: string; mutedTitle?: string }>>;
   processSteps?: Array<{ number?: string; title?: string; description?: string }>;
   contact?: { description?: string; whatsappMessage?: string };
 }
@@ -48,7 +48,7 @@ export interface SanityOffer {
   features?: string[];
   included?: string[];
   excluded?: string[];
-  cta?: { label?: string; href?: string };
+  cta?: { label?: string };
   featured?: boolean;
 }
 

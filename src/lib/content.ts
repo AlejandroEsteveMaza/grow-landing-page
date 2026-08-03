@@ -40,7 +40,7 @@ export interface LandingContent {
     marqueeItems: readonly string[];
   };
   contact: { description: string; whatsappMessage: string };
-  sectionCopy: Record<'services' | 'process' | 'team' | 'pricing' | 'resources' | 'faq', SectionCopy>;
+  sectionCopy: Record<'services' | 'process' | 'team' | 'resources' | 'faq', SectionCopy>;
 }
 
 export interface PublishedResource {
@@ -94,7 +94,6 @@ const localContent: LandingContent = {
     services: { eyebrow: 'Servicios', title: 'Lo que construimos', mutedTitle: 'para tu negocio' },
     process: { eyebrow: 'Metodología', title: 'Cómo trabajamos', mutedTitle: 'tu proyecto' },
     team: { eyebrow: 'El equipo', title: 'Dos personas reales', mutedTitle: 'detrás de tu web' },
-    pricing: { eyebrow: 'Inversión', title: 'Elige el plan', mutedTitle: 'que necesita tu negocio' },
     resources: { eyebrow: 'Recursos gratuitos', title: 'Blog y guías', mutedTitle: 'para crecer online' },
     faq: { eyebrow: 'Preguntas frecuentes', title: 'Lo que siempre', mutedTitle: 'nos preguntan' },
   },
@@ -204,7 +203,7 @@ export async function getLandingContent(): Promise<LandingContent> {
           }) ?? (deployment.environment === 'local' ? localContent.site.corporateContact.socialProfiles : []),
         },
       },
-      services: contentOrLocal(mappedServices.length ? mappedServices : null, localContent.services, 'services'),
+      services: mappedServices.length || deployment.environment !== 'local' ? mappedServices : localContent.services,
       processSteps: contentOrLocal(mappedProcessSteps.length ? mappedProcessSteps : null, localContent.processSteps, 'process steps'),
       teamMembers: contentOrLocal(mappedTeam.length ? mappedTeam : null, localContent.teamMembers, 'team'),
       pricingPlans: contentOrLocal(mappedPlans.length ? mappedPlans : null, localContent.pricingPlans, 'pricing offers'),
@@ -226,7 +225,6 @@ export async function getLandingContent(): Promise<LandingContent> {
         services: contentOrLocal(landing?.sectionCopy?.services?.eyebrow && landing.sectionCopy.services.title && landing.sectionCopy.services.mutedTitle ? landing.sectionCopy.services as SectionCopy : null, localContent.sectionCopy.services, 'services section copy'),
         process: contentOrLocal(landing?.sectionCopy?.process?.eyebrow && landing.sectionCopy.process.title && landing.sectionCopy.process.mutedTitle ? landing.sectionCopy.process as SectionCopy : null, localContent.sectionCopy.process, 'process section copy'),
         team: contentOrLocal(landing?.sectionCopy?.team?.eyebrow && landing.sectionCopy.team.title && landing.sectionCopy.team.mutedTitle ? landing.sectionCopy.team as SectionCopy : null, localContent.sectionCopy.team, 'team section copy'),
-        pricing: contentOrLocal(landing?.sectionCopy?.pricing?.eyebrow && landing.sectionCopy.pricing.title && landing.sectionCopy.pricing.mutedTitle ? landing.sectionCopy.pricing as SectionCopy : null, localContent.sectionCopy.pricing, 'pricing section copy'),
         resources: contentOrLocal(landing?.sectionCopy?.resources?.eyebrow && landing.sectionCopy.resources.title && landing.sectionCopy.resources.mutedTitle ? landing.sectionCopy.resources as SectionCopy : null, localContent.sectionCopy.resources, 'resources section copy'),
         faq: contentOrLocal(landing?.sectionCopy?.faq?.eyebrow && landing.sectionCopy.faq.title && landing.sectionCopy.faq.mutedTitle ? landing.sectionCopy.faq as SectionCopy : null, localContent.sectionCopy.faq, 'FAQ section copy'),
       },
