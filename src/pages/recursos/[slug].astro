@@ -2,6 +2,7 @@
 import { escapeHTML, toHTML } from '@portabletext/to-html';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getPublishedResources } from '../../lib/content';
+import { buildSanityImageSrcSet, buildSanityImageUrl, isSanityImageDimensions } from '../../lib/sanity/image';
 import type { JsonLd, SeoMeta } from '../../types/content';
 
 export async function getStaticPaths() {
@@ -18,21 +19,26 @@ const articleSchema: JsonLd = {
   datePublished: resource.publishedAt,
   description: resource.excerpt,
 };
+const coverDimensions = resource.coverImageDimensions;
+const coverMaxWidth = coverDimensions ? Math.min(1536, coverDimensions.width, Math.floor(coverDimensions.height * 16 / 9)) : 0;
+const coverImage = resource.coverImageUrl && coverMaxWidth > 0 ? {
+  src: buildSanityImageUrl(resource.coverImageUrl, { width: Math.min(768, coverMaxWidth), height: Math.round(Math.min(768, coverMaxWidth) * 9 / 16), fit: 'crop', quality: 82 }),
+  srcset: buildSanityImageSrcSet(resource.coverImageUrl, [coverMaxWidth, 384, 640, 768, 1024, 1280, 1536], { maxWidth: coverMaxWidth, aspectRatio: 16 / 9, fit: 'crop', quality: 82 }),
+} : undefined;
 const bodyHtml = toHTML(resource.body as Parameters<typeof toHTML>[0], {
   components: {
     types: {
       imageWithAlt: ({ value }) => {
         const url = value.asset?.url;
         const alt = value.alt?.trim();
-        if (typeof url !== 'string' || !alt) return '';
+        const dimensions = value.asset?.metadata?.dimensions;
+        if (typeof url !== 'string' || !alt || !isSanityImageDimensions(dimensions)) return '';
+        const maxWidth = Math.min(dimensions.width, 1536);
+        const src = buildSanityImageUrl(url, { width: Math.min(maxWidth, 768), fit: 'max', quality: 82 });
+        const srcset = buildSanityImageSrcSet(url, [maxWidth, 320, 480, 640, 768, 1024, 1280, 1536], { maxWidth, fit: 'max', quality: 82 });
+        if (!src || !srcset) return '';
 
-        try {
-          if (new URL(url).protocol !== 'https:') return '';
-        } catch {
-          return '';
-        }
-
-        return `<figure><img src="${escapeHTML(url)}" alt="${escapeHTML(alt)}" loading="lazy"></figure>`;
+        return `<figure><img src="${escapeHTML(src)}" srcset="${escapeHTML(srcset)}" sizes="(max-width: 48rem) calc(100vw - 3rem), 48rem" width="${dimensions.width}" height="${dimensions.height}" alt="${escapeHTML(alt)}" loading="lazy" decoding="async"></figure>`;
       },
     },
   },
@@ -45,7 +51,7 @@ const bodyHtml = toHTML(resource.body as Parameters<typeof toHTML>[0], {
       <a class="inline-flex min-h-11 items-center text-sm font-semibold text-muted transition-colors hover:text-accent-text focus-visible:text-accent-text" href="/#recursos">← Volver a recursos</a>
       <p class="mt-6 text-[0.68rem] font-semibold uppercase tracking-[0.25em] text-accent-text">{resource.category}</p>
       <h1 class="mt-4 font-display text-[clamp(2.5rem,5vw,4.25rem)] font-black leading-[0.96] tracking-[-0.045em] text-foreground">{resource.title}</h1>
-      {resource.coverImageUrl && <img class="mt-10 aspect-[16/9] w-full rounded-card object-cover" src={resource.coverImageUrl} alt={resource.coverImageAlt ?? ''} loading="eager" />}
+      {coverImage?.src && <img class="mt-10 aspect-[16/9] w-full rounded-card object-cover" src={coverImage.src} srcset={coverImage.srcset} sizes="(max-width: 48rem) calc(100vw - 3rem), 48rem" width="768" height="432" alt={resource.coverImageAlt ?? ''} loading="eager" decoding="async" fetchpriority="high" />}
       <div class="portable-text mt-10 text-base leading-8 text-muted" set:html={bodyHtml} />
       {resource.action && <a class="mt-10 inline-flex min-h-12 items-center rounded-brand bg-primary px-7 py-3.5 text-sm font-bold text-white" href={resource.action.url}>{resource.action.label}</a>}
     </div>

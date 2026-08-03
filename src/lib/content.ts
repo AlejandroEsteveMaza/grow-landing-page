@@ -6,6 +6,7 @@ import { services } from '../data/services';
 import { teamMembers } from '../data/team';
 import { siteConfig } from '../config/site';
 import { deployment, sanityClient, sanityConfig } from './sanity/config';
+import { isSanityImageDimensions, isSanityImageUrl, type SanityImageDimensions } from './sanity/image';
 import { faqQuery, landingPageQuery, offersQuery, resourcesQuery, servicesQuery, siteSettingsQuery, teamQuery } from './sanity/queries';
 import type { SanityLandingPage, SanityOffer, SanityResource, SanitySiteSettings, SanitySocialPlatform, SanityTeamMember } from './sanity/types';
 import type { ArticlePreview, FaqItem, GuidePreview, MaintenancePlan, PricingPlan, ProcessStep, SectionCopy, Service, TeamMember } from '../types/content';
@@ -52,6 +53,7 @@ export interface PublishedResource {
   publishedAt: string;
   coverImageUrl?: string | undefined;
   coverImageAlt?: string | undefined;
+  coverImageDimensions?: SanityImageDimensions | undefined;
   body: unknown[];
   seo: { title: string; description: string };
   action?: { label: string; url: string } | undefined;
@@ -103,7 +105,7 @@ const priceLabel = (publicPrice: SanityOffer['publicPrice']): string | null => p
 
 const completeResource = (resource: SanityResource): resource is Required<Pick<SanityResource, 'slug' | 'resourceType' | 'title' | 'excerpt' | 'publishedAt' | 'body' | 'seo'>> & SanityResource =>
   (resource.resourceType === 'article' || resource.resourceType === 'guide') &&
-  Boolean(resource.slug && resource.title && resource.excerpt && resource.publishedAt && resource.coverImage?.asset?.url && resource.coverImage.alt && resource.body?.length && resource.seo?.title && resource.seo.description);
+  Boolean(resource.slug && resource.title && resource.excerpt && resource.publishedAt && isSanityImageUrl(resource.coverImage?.asset?.url) && resource.coverImage.alt && isSanityImageDimensions(resource.coverImage.asset?.metadata?.dimensions) && resource.body?.length && resource.seo?.title && resource.seo.description);
 
 const externalHttpsAction = (action: SanityResource['action']): PublishedResource['action'] => {
   if (!action?.label || !action.url) return undefined;
@@ -170,8 +172,8 @@ export async function getLandingContent(): Promise<LandingContent> {
       ? [{ number: String(index + 1).padStart(2, '0'), tier: service.tier, title: service.title, description: service.description, features: service.features }]
       : []);
     const mappedFaq = cmsFaq.flatMap((item) => item.question && item.answer ? [{ question: item.question, answer: item.answer }] : []);
-    const mappedTeam = cmsTeam.flatMap((member) => member.name && member.role && member.bio && member.tags?.length && member.image?.asset?.url && member.image.alt
-      ? [{ name: member.name, role: member.role, bio: member.bio, tags: member.tags, image: member.image.asset.url, imageAlt: member.image.alt }]
+    const mappedTeam = cmsTeam.flatMap((member) => member.name && member.role && member.bio && member.tags?.length && isSanityImageUrl(member.image?.asset?.url) && member.image.alt && isSanityImageDimensions(member.image.asset?.metadata?.dimensions)
+      ? [{ name: member.name, role: member.role, bio: member.bio, tags: member.tags, image: member.image.asset.url, imageAlt: member.image.alt, imageDimensions: member.image.asset.metadata.dimensions }]
       : []);
     const mappedProcessSteps = landing?.processSteps?.flatMap((step) => step.number && step.title && step.description
       ? [{ number: step.number, title: step.title, description: step.description }]
@@ -251,6 +253,7 @@ export async function getPublishedResources(): Promise<PublishedResource[]> {
       publishedAt: resource.publishedAt,
       coverImageUrl: resource.coverImage?.asset?.url,
       coverImageAlt: resource.coverImage?.alt,
+      coverImageDimensions: resource.coverImage?.asset?.metadata?.dimensions as SanityImageDimensions,
       body: resource.body,
       seo: { title: resource.seo.title!, description: resource.seo.description! },
       action: externalHttpsAction(resource.action),

@@ -1,4 +1,5 @@
 import type { ImageMetadata } from 'astro';
+import type { SanityImageDimensions } from '../lib/sanity/image';
 
 export interface NavItem {
   label: string;
@@ -37,6 +38,7 @@ export interface TeamMember {
   tags: readonly string[];
   image: ImageMetadata | string;
   imageAlt: string;
+  imageDimensions?: SanityImageDimensions;
 }
 
 export interface PricingPlan {
