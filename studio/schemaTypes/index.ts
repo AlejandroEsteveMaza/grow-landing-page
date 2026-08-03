@@ -33,8 +33,8 @@ const validPortableTextBody = (value: unknown) => {
 const seo = defineType({
   name: 'editorialSeo', title: 'SEO editorial', type: 'object',
   fields: [
-    defineField({ name: 'title', title: 'Título SEO', type: 'string', validation: requiredText(60) }),
-    defineField({ name: 'description', title: 'Descripción SEO', type: 'text', rows: 3, validation: requiredText(160) }),
+    defineField({ name: 'title', title: 'Título SEO', type: 'string', description: 'Escribe un título descriptivo y específico para esta página. Google puede mostrar otro título según la búsqueda.', validation: requiredText(60) }),
+    defineField({ name: 'description', title: 'Descripción SEO', type: 'text', rows: 3, description: 'Resume de forma descriptiva y específica el contenido de esta página. Google puede mostrar un fragmento distinto según la búsqueda.', validation: requiredText(160) }),
   ],
 });
 
@@ -98,7 +98,7 @@ const siteSettings = defineType({
   name: 'siteSettings', title: 'Ajustes del sitio', type: 'document',
   fields: [
     defineField({ name: 'name', title: 'Nombre', type: 'string', validation: requiredText(80) }),
-    defineField({ name: 'description', title: 'Descripción', type: 'text', validation: requiredText(160) }),
+    defineField({ name: 'description', title: 'Descripción', type: 'text', description: 'Resume de forma descriptiva y específica la propuesta de la portada. Google puede mostrar un fragmento distinto según la búsqueda.', validation: requiredText(160) }),
     defineField({
       name: 'corporateContact', title: 'Datos de contacto corporativo', type: 'object',
       description: 'Opcional. Estos datos se usan como información corporativa del sitio.',
