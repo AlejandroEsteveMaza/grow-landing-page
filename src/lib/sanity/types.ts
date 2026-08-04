@@ -63,12 +63,14 @@ export interface SanityTeamMember {
 
 export interface SanityResource {
   _id: string;
+  _updatedAt?: string;
   resourceType?: 'article' | 'guide';
   title?: string;
   slug?: string;
   excerpt?: string;
   category?: string;
   publishedAt?: string;
+  authorName?: string;
   coverImage?: SanityImage;
   body?: unknown[];
   seo?: { title?: string; description?: string };

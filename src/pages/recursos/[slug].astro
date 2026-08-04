@@ -1,9 +1,11 @@
 ---
 import { escapeHTML, toHTML } from '@portabletext/to-html';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { buildArticleSchema, isMeaningfullyModified } from '../../lib/article-schema';
 import { getPublishedResources } from '../../lib/content';
+import { deploymentEnvironment } from '../../lib/deployment';
 import { buildSanityImageSrcSet, buildSanityImageUrl, isSanityImageDimensions } from '../../lib/sanity/image';
-import type { JsonLd, SeoMeta } from '../../types/content';
+import type { SeoMeta } from '../../types/content';
 
 export async function getStaticPaths() {
   const resources = await getPublishedResources();
@@ -12,13 +14,13 @@ export async function getStaticPaths() {
 
 const { resource } = Astro.props;
 const seo = { title: resource.seo.title, description: resource.seo.description, type: 'article', ...(resource.coverImageUrl ? { image: resource.coverImageUrl } : {}) } satisfies SeoMeta;
-const articleSchema: JsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'Article',
-  headline: resource.title,
-  datePublished: resource.publishedAt,
-  description: resource.excerpt,
-};
+const articleSchema = resource.resourceType === 'article' && resource.authorName && resource.updatedAt && resource.coverImageUrl
+  ? buildArticleSchema({ headline: resource.title, description: resource.seo.description, datePublished: resource.publishedAt, dateModified: resource.updatedAt, authorName: resource.authorName, imageUrl: resource.coverImageUrl, articleSection: resource.category, ...(deploymentEnvironment === 'production' && Astro.site ? { canonicalOrigin: Astro.site.origin, pathname: Astro.url.pathname } : {}) })
+  : undefined;
+const dateFormatter = new Intl.DateTimeFormat('es-PE', { dateStyle: 'long', timeZone: 'UTC' });
+const publishedLabel = dateFormatter.format(new Date(resource.publishedAt));
+const showModified = resource.updatedAt && isMeaningfullyModified(resource.publishedAt, resource.updatedAt);
+const modifiedLabel = showModified ? dateFormatter.format(new Date(resource.updatedAt!)) : undefined;
 const coverDimensions = resource.coverImageDimensions;
 const coverMaxWidth = coverDimensions ? Math.min(1536, coverDimensions.width, Math.floor(coverDimensions.height * 16 / 9)) : 0;
 const coverImage = resource.coverImageUrl && coverMaxWidth > 0 ? {
@@ -45,12 +47,13 @@ const bodyHtml = toHTML(resource.body as Parameters<typeof toHTML>[0], {
 });
 ---
 
-<BaseLayout {...seo} schemas={[articleSchema]}>
+<BaseLayout {...seo} schemas={articleSchema ? [articleSchema] : []}>
   <article class="px-6 pb-20 pt-36 md:px-10 md:pb-28 md:pt-44 lg:px-16 lg:pb-32">
     <div class="mx-auto w-full max-w-3xl">
       <a class="inline-flex min-h-11 items-center text-sm font-semibold text-muted transition-colors hover:text-accent-text focus-visible:text-accent-text" href="/#recursos">← Volver a recursos</a>
       <p class="mt-6 text-[0.68rem] font-semibold uppercase tracking-[0.25em] text-accent-text">{resource.category}</p>
       <h1 class="mt-4 font-display text-[clamp(2.5rem,5vw,4.25rem)] font-black leading-[0.96] tracking-[-0.045em] text-foreground">{resource.title}</h1>
+      {resource.resourceType === 'article' && resource.authorName && <p class="mt-5 text-sm leading-6 text-muted">Por {resource.authorName} · <time datetime={resource.publishedAt}>Publicado el {publishedLabel}</time>{modifiedLabel && <> · <time datetime={resource.updatedAt}>Actualizado el {modifiedLabel}</time></>}</p>}
       {coverImage?.src && <img class="mt-10 aspect-[16/9] w-full rounded-card object-cover" src={coverImage.src} srcset={coverImage.srcset} sizes="(max-width: 48rem) calc(100vw - 3rem), 48rem" width="768" height="432" alt={resource.coverImageAlt ?? ''} loading="eager" decoding="async" fetchpriority="high" />}
       <div class="portable-text mt-10 text-base leading-8 text-muted" set:html={bodyHtml} />
       {resource.action && <a class="mt-10 inline-flex min-h-12 items-center rounded-brand bg-primary px-7 py-3.5 text-sm font-bold text-white" href={resource.action.url}>{resource.action.label}</a>}

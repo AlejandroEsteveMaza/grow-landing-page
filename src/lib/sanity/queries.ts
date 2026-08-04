@@ -23,7 +23,7 @@ export const teamQuery = `*[_type == "teamMember" && enabled == true] | order(or
 export const faqQuery = `*[_type == "faq" && enabled == true] | order(order asc) { _id, question, answer, order }`;
 
 export const resourcesQuery = `*[_type == "resource" && defined(title) && defined(excerpt) && defined(category) && defined(publishedAt) && publishedAt <= now() && defined(slug.current) && defined(coverImage.asset) && defined(coverImage.alt) && defined(body) && count(body) > 0 && defined(seo.title) && defined(seo.description)] | order(publishedAt desc) {
-  _id, resourceType, title, "slug": slug.current, excerpt, category, publishedAt,
+  _id, _updatedAt, resourceType, title, "slug": slug.current, excerpt, category, publishedAt, authorName,
   "coverImage": {"asset": coverImage.asset->{url, metadata {dimensions}}, "alt": coverImage.alt},
   "body": body[]{..., _type == "imageWithAlt" => {"asset": asset->{url, metadata {dimensions}}, "alt": alt}}, seo, action
 }`;
