@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import ResourceNavigationLink from '../../components/navigation/ResourceNavigationLink.astro';
 import { getPublishedResources } from '../../lib/content';
 import type { SeoMeta } from '../../types/content';
 
@@ -14,6 +15,9 @@ const seo = {
 <BaseLayout {...seo}>
   <section class="px-6 pb-20 pt-36 md:px-10 md:pb-28 md:pt-44 lg:px-16 lg:pb-32">
     <div class="mx-auto w-full max-w-site">
+      <div class="mb-8">
+        <ResourceNavigationLink href="/#recursos" label="Volver a la sección Recursos" direction="back" variant="compact" />
+      </div>
       <p class="text-[0.68rem] font-semibold uppercase tracking-[0.25em] text-accent-text">Recursos</p>
       <h1 class="mt-4 font-display text-[clamp(2.5rem,5vw,4.25rem)] font-black leading-[0.96] tracking-[-0.045em] text-foreground">Artículos y guías</h1>
       {resources.length > 0 && <div class="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">

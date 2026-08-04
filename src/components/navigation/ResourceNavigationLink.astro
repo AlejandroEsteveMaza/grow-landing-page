@@ -1,0 +1,168 @@
+---
+interface Props {
+  href: string;
+  label: string;
+  direction: 'back' | 'forward';
+  variant: 'compact' | 'editorial';
+  supportingText?: string;
+}
+
+const { href, label, direction, variant, supportingText } = Astro.props;
+const arrow = direction === 'back' ? '←' : '→';
+---
+
+<a class:list={['resource-navigation', `resource-navigation--${variant}`, `resource-navigation--${direction}`]} href={href}>
+  <span class="resource-navigation__copy">
+    {supportingText && <span class="resource-navigation__supporting">{supportingText}</span>}
+    <span class="resource-navigation__label">{label}</span>
+  </span>
+  <span class="resource-navigation__marker" aria-hidden="true">
+    <span class="resource-navigation__arrow">{arrow}</span>
+  </span>
+</a>
+
+<style>
+  .resource-navigation {
+    --marker-size: 2.75rem;
+    display: inline-grid;
+    min-height: 2.75rem;
+    grid-template-columns: minmax(0, 1fr) var(--marker-size);
+    color: var(--color-foreground);
+    text-decoration: none;
+    transition: color 250ms var(--ease-brand), background-color 250ms var(--ease-brand);
+  }
+
+  .resource-navigation--back {
+    grid-template-columns: var(--marker-size) minmax(0, 1fr);
+  }
+
+  .resource-navigation--back .resource-navigation__copy {
+    grid-column: 2;
+  }
+
+  .resource-navigation--back .resource-navigation__marker {
+    grid-column: 1;
+    grid-row: 1;
+    border-right: 1px solid var(--color-border);
+    border-left: 0;
+  }
+
+  .resource-navigation__copy,
+  .resource-navigation__marker {
+    display: flex;
+    min-height: 2.75rem;
+    align-items: center;
+  }
+
+  .resource-navigation__copy {
+    min-width: 0;
+  }
+
+  .resource-navigation__marker {
+    justify-content: center;
+    border-left: 1px solid var(--color-border);
+    background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+    color: var(--color-primary);
+    transition: color 250ms var(--ease-brand), background-color 250ms var(--ease-brand);
+  }
+
+  .resource-navigation__arrow {
+    transition: transform 250ms var(--ease-brand);
+  }
+
+  .resource-navigation--forward:hover .resource-navigation__arrow,
+  .resource-navigation--forward:focus-visible .resource-navigation__arrow {
+    transform: translateX(0.25rem);
+  }
+
+  .resource-navigation--back:hover .resource-navigation__arrow,
+  .resource-navigation--back:focus-visible .resource-navigation__arrow {
+    transform: translateX(-0.25rem);
+  }
+
+  .resource-navigation:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 4px;
+  }
+
+  .resource-navigation--compact {
+    border-block: 1px solid var(--color-border);
+    color: var(--color-muted);
+  }
+
+  .resource-navigation--compact .resource-navigation__copy {
+    padding: 0.5rem 0.875rem;
+  }
+
+  .resource-navigation--compact .resource-navigation__label {
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .resource-navigation--compact:hover,
+  .resource-navigation--compact:focus-visible,
+  .resource-navigation--editorial:hover,
+  .resource-navigation--editorial:focus-visible {
+    color: var(--color-accent-text);
+  }
+
+  .resource-navigation--compact:hover .resource-navigation__marker,
+  .resource-navigation--compact:focus-visible .resource-navigation__marker,
+  .resource-navigation--editorial:hover .resource-navigation__marker,
+  .resource-navigation--editorial:focus-visible .resource-navigation__marker {
+    background: var(--color-primary);
+    color: white;
+  }
+
+  .resource-navigation--editorial {
+    --marker-size: 3.25rem;
+    width: 100%;
+    border-block: 1px solid var(--color-border);
+  }
+
+  .resource-navigation--editorial .resource-navigation__copy {
+    display: grid;
+    gap: 0.25rem;
+    padding: 0.875rem 1rem 0.875rem 0;
+  }
+
+  .resource-navigation__supporting {
+    color: var(--color-muted);
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    line-height: 1.4;
+    text-transform: uppercase;
+    transition: color 250ms var(--ease-brand);
+  }
+
+  .resource-navigation--editorial .resource-navigation__label {
+    font-family: var(--font-display);
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    font-weight: 800;
+    letter-spacing: -0.015em;
+    line-height: 1.1;
+  }
+
+  @media (min-width: 40rem) {
+    .resource-navigation--editorial .resource-navigation__copy {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      padding: 1rem 1.25rem 1rem 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .resource-navigation,
+    .resource-navigation__marker,
+    .resource-navigation__supporting,
+    .resource-navigation__arrow {
+      transition: none;
+    }
+
+    .resource-navigation:hover .resource-navigation__arrow,
+    .resource-navigation:focus-visible .resource-navigation__arrow {
+      transform: none;
+    }
+  }
+</style>
