@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "include": ["/api/contact", "/404", "/404.html"],
+  "exclude": []
+}

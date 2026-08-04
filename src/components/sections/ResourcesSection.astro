@@ -1,5 +1,6 @@
 ---
 import ResourceCard from '../cards/ResourceCard.astro';
+import ResourceNavigationLink from '../navigation/ResourceNavigationLink.astro';
 import type { ArticlePreview, GuidePreview, SectionCopy } from '../../types/content';
 
 interface Props {
@@ -9,6 +10,8 @@ interface Props {
 }
 
 const { articles, guides, copy } = Astro.props;
+const publishedResourceCount = articles.filter((article) => Boolean(article.href)).length + guides.filter((guide) => Boolean(guide.href)).length;
+const publishedResourceLabel = `${publishedResourceCount} ${publishedResourceCount === 1 ? 'recurso publicado' : 'recursos publicados'}`;
 ---
 
 <section class="border-b border-border" id="recursos" aria-labelledby="resources-title" data-resources-tabs>
@@ -70,6 +73,10 @@ const { articles, guides, copy } = Astro.props;
         }
       </div>
     </section>
+
+    {publishedResourceCount > 0 && <div class="reveal mt-12">
+      <ResourceNavigationLink href="/recursos/" label="Ver todos los recursos" supportingText={publishedResourceLabel} direction="forward" variant="editorial" />
+    </div>}
   </div>
 </section>
 
