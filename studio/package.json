@@ -13,6 +13,7 @@
     "deploy:production": "DEPLOY_ENV=production SANITY_STUDIO_BASEPATH=/ sh -c 'printf \"Type DEPLOY TUNORTE PRODUCTION to continue: \"; IFS= read -r confirmation && [ \"$confirmation\" = \"DEPLOY TUNORTE PRODUCTION\" ] || { printf \"Deployment cancelled.\\n\" >&2; exit 1; }; exec sanity deploy --url tunorte.sanity.studio --title \"TuNorte Content Studio\" --schema-required'"
   },
   "dependencies": {
+    "@sanity/locale-es-es": "^1.2.35",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "sanity": "^6.4.0",

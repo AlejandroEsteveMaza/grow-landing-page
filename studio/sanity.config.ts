@@ -1,5 +1,6 @@
 import { defineConfig } from 'sanity';
 import { structureTool } from 'sanity/structure';
+import { esESLocale } from '@sanity/locale-es-es';
 import { validateStudioEnvironment } from '../deployment-environment';
 import { siteDeploymentAction } from './actions/siteDeploymentAction';
 import { schemaTypes } from './schemaTypes';
@@ -17,7 +18,7 @@ export default defineConfig({
   title: 'TuNorte Content Studio',
   projectId,
   dataset,
-  plugins: [structureTool({ structure })],
+  plugins: [structureTool({ structure }), esESLocale()],
   document: {
     newDocumentOptions: (previous) => previous.filter((template) => !['siteSettings', 'landingPage', 'siteDeployment'].includes(template.templateId)),
     actions: (previous, context) => context.schemaType === 'siteDeployment' ? [siteDeploymentAction] : previous,
