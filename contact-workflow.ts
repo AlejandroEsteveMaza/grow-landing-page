@@ -1,5 +1,5 @@
-export const PRIVACY_POLICY_VERSION = '2026-07-28';
-export const PRIVACY_NOTICE_VERSION = '2026-07-28.1';
+export const PRIVACY_POLICY_VERSION = '2026-08-06';
+export const PRIVACY_NOTICE_VERSION = '2026-08-06.1';
 export const TURNSTILE_ACTION = 'contact';
 export const TURNSTILE_TIMEOUT_MS = 8_000;
 export const RESEND_TIMEOUT_MS = 8_000;

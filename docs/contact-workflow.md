@@ -1,43 +1,56 @@
-# Activación segura del formulario de contacto
+# Safe contact form operations
 
-El formulario real está cerrado por defecto. Su activación exige aprobación legal y registral, configuración pública durante el build y configuración secreta independiente en Cloudflare Pages Functions.
+The repository keeps two independent technical controls that fail closed when configuration is missing. Production may have both controls enabled; that technical state does not prove that external legal, registration, or contractual controls are complete.
 
-## Secuencia de activación
+## State and configuration changes
 
-1. Obtén aprobación documentada sobre identificación y domicilio de la responsable, registro del banco de datos de consultas, flujos internacionales, proveedores, salvaguardas y procedimiento ARCO. Revisa específicamente si el uso previsto de Gmail ofrece garantías suficientes.
-2. Configura y verifica Turnstile y el dominio remitente de Resend sin guardar valores en el repositorio.
-3. Añade las variables de servidor y valida primero en Preview. Mantén `CONTACT_FORM_ENABLED` distinto de `true` durante esta preparación.
-4. Añade las variables públicas de build. El cliente solo muestra el envío real cuando `PUBLIC_CONTACT_FORM_ENABLED=true` y existe una clave pública de Turnstile con formato válido.
-5. Como último paso, establece `CONTACT_FORM_ENABLED=true` en el mismo entorno. Ambos indicadores deben estar activos; ninguno sustituye al otro.
-6. Verifica un envío controlado, la evidencia de versiones, el procedimiento de borrado a seis meses y la alternativa por correo antes de autorizar Production.
+1. Before changing an environment, record its current state without copying secret values and confirm whether the target is Preview or Production.
+2. Keep documented evidence for the controller's required identity and domicile, data-bank analysis and registration, international flows, providers, safeguards, the ARCO procedure, and six-month deletion. Review specifically whether the intended Gmail use provides sufficient safeguards. These external controls remain subject to evidence and are not presumed complete because Production is enabled.
+3. Configure and verify Turnstile and the Resend sending domain without storing values in the repository.
+4. Validate in Preview first. The client only renders real submission when `PUBLIC_CONTACT_FORM_ENABLED=true` and a validly formatted public Turnstile key exists.
+5. The endpoint only processes messages when `CONTACT_FORM_ENABLED=true` in the same environment. Both flags must be enabled; neither replaces the other.
+6. After an authorized change, verify version evidence, the six-month deletion procedure, and the email alternative. Do not use the public form for testing without explicit authorization.
 
-La activación técnica no acredita por sí sola el cumplimiento de la Ley N.º 29733 ni del Decreto Supremo N.º 016-2024-JUS.
+Technical activation alone does not establish compliance with Law No. 29733 or Supreme Decree No. 016-2024-JUS.
+
+## ARCO and revocation requests
+
+1. Record the receipt date of mail sent to `contacto@tunorteweb.com` and confirm the requested right without requesting excessive data.
+2. Verify identity only to the extent reasonably necessary. If information is missing, request the specific correction.
+3. Respond to access requests within 20 business days and rectification, cancellation, or opposition requests within 10 business days. Apply revocation prospectively and confirm it within an operational maximum of 10 business days, recording any processing that continues under another legal basis.
+4. Retain the request, response, and actions taken. If a request is denied in whole or part, explain why and identify the ANPD complaint route.
+
+Official sources checked on August 6, 2026: [ANPD guidance on ARCO rights](https://www.gob.pe/9270-que-son-los-derechos-arco) and the [complaint procedure, including response deadlines](https://www.gob.pe/9269-iniciar-procedimiento-para-el-ejercicio-de-derechos-de-acceso-rectificacion-cancelacion-y-oposicion).
+
+## Pending commercial content in Sanity
+
+Production publishes the Sanity-managed claim “Cumplimiento legal desde el inicio (aviso legal, privacidad y cookies).” An authorized editor must remove or qualify it to describe concrete deliverables without promising absolute legal compliance. That correction requires a dataset mutation and is outside this repository change.
 
 ## Variables
 
-| Variable | Ámbito | Sensible | Función |
+| Variable | Scope | Sensitive | Purpose |
 | --- | --- | --- | --- |
-| `PUBLIC_CONTACT_FORM_ENABLED` | Build público | No | Habilita la interfaz real solo con el valor exacto `true`. |
-| `PUBLIC_TURNSTILE_SITE_KEY` | Build público | No | Clave pública del widget de Turnstile. |
-| `CONTACT_FORM_ENABLED` | Pages Function | No | Habilita el endpoint solo con el valor exacto `true`. |
-| `CONTACT_ALLOWED_HOSTNAMES` | Pages Function | No | Lista separada por comas de hosts autorizados, sin protocolo ni ruta. |
-| `TURNSTILE_SECRET_KEY` | Pages Function | Sí | Valida el token con Cloudflare. |
-| `RESEND_API_KEY` | Pages Function | Sí | Autoriza el envío transaccional. |
-| `CONTACT_FROM_EMAIL` | Pages Function | Configuración | Remitente verificado en Resend. |
-| `CONTACT_TO_EMAIL` | Pages Function | Sí | Destino privado de las consultas; nunca debe publicarse. |
+| `PUBLIC_CONTACT_FORM_ENABLED` | Public build | No | Enables the real interface only for the exact value `true`. |
+| `PUBLIC_TURNSTILE_SITE_KEY` | Public build | No | Public Turnstile widget key. |
+| `CONTACT_FORM_ENABLED` | Pages Function | No | Enables the endpoint only for the exact value `true`. |
+| `CONTACT_ALLOWED_HOSTNAMES` | Pages Function | No | Comma-separated allowed hosts without protocol or path. |
+| `TURNSTILE_SECRET_KEY` | Pages Function | Yes | Validates the token with Cloudflare. |
+| `RESEND_API_KEY` | Pages Function | Yes | Authorizes transactional delivery. |
+| `CONTACT_FROM_EMAIL` | Pages Function | Configuration | Verified Resend sender. |
+| `CONTACT_TO_EMAIL` | Pages Function | Yes | Private inquiry destination; never publish it. |
 
-No añadas valores reales a archivos `.env`, documentación, logs, variables `PUBLIC_` ni control de versiones. Las variables públicas pertenecen al build de Astro; las variables de servidor pertenecen al entorno de Pages Functions.
+Do not add real values to `.env` files, documentation, logs, `PUBLIC_` variables, or version control. Public variables belong to the Astro build; server variables belong to the Pages Functions environment.
 
-## Controles que deben permanecer
+## Controls that must remain
 
-- La función rechaza la petición antes de llamar a terceros si el indicador de servidor no está activo.
-- El endpoint acepta solo JSON por `POST`, con origen y host autorizados, límites estrictos, servicio permitido y honeypot vacío.
-- Turnstile se verifica en servidor, incluida la acción `contact` y el host esperado.
-- El mensaje se envía como texto y no se registra PII en consola ni en una base de datos propia.
-- Cada mensaje incluye fecha UTC, versión de política y versión del aviso como evidencia del envío.
-- Los builds desactivados no contienen controles con nombre, acción de formulario ni script de envío real.
+- The function rejects the request before calling third parties when the server flag is not enabled.
+- The endpoint only accepts JSON over `POST`, with allowed origin and host, strict limits, an allowed service, and an empty honeypot.
+- Turnstile is verified on the server, including the `contact` action and expected host.
+- The message is sent as text and PII is not logged to the console or stored in a first-party database.
+- Every message includes the UTC date, policy version, and notice version as submission evidence.
+- Disabled builds contain no named controls, form action, or real-submission script.
 
-## Verificación local sin entregas
+## Local verification without delivery
 
 ```bash
 npm test
@@ -46,4 +59,4 @@ npm run build
 rg -n "api/contact|challenges.cloudflare.com/turnstile|PUBLIC_TURNSTILE_SITE_KEY" dist
 ```
 
-La última orden no debe encontrar una ruta activa ni el cargador de Turnstile en un build por defecto. `npm test` prueba que el endpoint desactivado responde `503` sin ejecutar ninguna llamada externa.
+The final command must not find an active route or Turnstile loader in a default build. `npm test` proves that the disabled endpoint returns `503` without making an external request.
