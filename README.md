@@ -117,13 +117,13 @@ Cloudflare Pages aloja únicamente la web pública. El Studio de producción usa
 
 ### Formulario de contacto
 
-El formulario real y su Pages Function están cerrados por defecto. La secuencia de aprobación, las variables requeridas (solo nombres) y las comprobaciones sin entregas externas se documentan en [`docs/contact-workflow.md`](docs/contact-workflow.md). No actives sus indicadores antes de completar la revisión legal y registral indicada allí.
+The real form and its Pages Function retain independent controls that fail closed when configuration is missing. Production may have both flags enabled; operations, required variable names, no-delivery checks, and external legal controls still requiring evidence are documented in [`docs/contact-workflow.md`](docs/contact-workflow.md).
 
 ## Configuración pendiente
 
 1. Diseña el flujo de promoción de contenido de `development` a `production`.
 2. Reconcilia el historial de ramas cuando exista una estrategia acordada; esta unidad no modifica ramas.
 3. Añade el número de WhatsApp en `src/config/site.ts` para activar el enlace.
-4. Completa la aprobación legal y registral antes de activar el flujo de contacto documentado.
+4. Complete and retain evidence of the contact flow's legal, registration, contractual, and operational review; do not infer completion from Production's technical state.
 
 La tipografía actual utiliza fuentes seguras del sistema. Las fuentes de marca podrán autoalojarse cuando se faciliten los archivos correspondientes.
