@@ -1,0 +1,38 @@
+---
+interface Props {
+  variant: 'header' | 'footer';
+}
+
+const { variant } = Astro.props;
+const isHeader = variant === 'header';
+---
+
+<a
+  class:list={[
+    'inline-flex w-fit shrink-0 items-center whitespace-nowrap font-display font-black text-foreground transition-colors hover:text-primary focus-visible:text-primary',
+    isHeader
+      ? 'min-h-11 gap-2 text-2xl tracking-[-0.06em]'
+      : 'min-h-11 gap-3 text-4xl tracking-[-0.065em] sm:text-5xl',
+  ]}
+  href="/"
+  aria-label="TuNorte, volver al inicio"
+>
+  <svg
+    class:list={['shrink-0 text-primary', isHeader ? 'size-8' : 'size-11 sm:size-12']}
+    viewBox="0 0 48 48"
+    fill="none"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <circle cx="24" cy="24" r="15.5" stroke="currentColor" stroke-width="3.5" />
+    <g stroke="currentColor" stroke-width="3.5" stroke-linecap="round">
+      <line x1="24" y1="3" x2="24" y2="7" />
+      <line x1="41" y1="24" x2="45" y2="24" />
+      <line x1="24" y1="41" x2="24" y2="45" />
+      <line x1="3" y1="24" x2="7" y2="24" />
+    </g>
+    <path d="M19.5 22.5 28.5 22.5 24 39Z" fill="currentColor" />
+    <path d="M24 9 27.25 25 24 23 20.75 25Z" class="fill-foreground" />
+  </svg>
+  <span>TuNorte<span class="text-primary">.</span></span>
+</a>
